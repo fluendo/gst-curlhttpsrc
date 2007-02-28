@@ -1,0 +1,38 @@
+2007-02-28  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* m4/as-ac-expand.m4:
+	* m4/gst-plugindir.m4:
+	* m4/gst-args.m4:
+	* m4/Makefile.am
+	  add these macros
+
+2007-02-28  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* m4/as-version.m4:
+	  update AS_VERSION.  Needs updating configure.ac in all
+	  Fluendo GStreamer modules too.
+
+2007-02-28  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* update to new AG_GST style macros
+	* add gst-args, gst-valgrind, gst-check
+
+2007-02-28  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* add check.mak and gst.supp
+
+2006-10-10  Josep Torra Valles  <josep@fluendo.com>
+
+	* m4/gst-fionread.m4:
+	  adding a copy of the check macro
+
+2006-05-30  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* m4/gst-error.m4:
+	  adding a copy of the error macro
+
+2006-03-30  Thomas Vander Stichele  <thomas at apestaart dot org>
+
+	* share among modules
+
+
