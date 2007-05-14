@@ -1,3 +1,8 @@
+2007-05-14  Josep Torra Valles  <josep@fluendo.com>
+
+	* m4/check.m4:
+	  Added to make projects compile under sbox.
+
 2007-04-10  Thomas Vander Stichele  <thomas at apestaart dot org>
 
 	* m4/gst-check.m4:
