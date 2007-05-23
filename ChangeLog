@@ -1,3 +1,9 @@
+2007-05-23  Edward Hervey  <edward@fluendo.com>
+
+	* m4/ax_create_stdint_h.m4:
+	Added from gstreamer common.
+	Needed for gst-fluendo-wmaenc.
+
 2007-05-14  Josep Torra Valles  <josep@fluendo.com>
 
 	* m4/check.m4:
