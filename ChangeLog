@@ -1,3 +1,9 @@
+2007-08-29  Josep Torra Valles  <josep@fluendo.com>
+
+	* m4/Makefile.am:
+	* m4/gst-cpu-tune.m4:
+	Added to make easier add plataform specific build flags.
+
 2007-05-23  Edward Hervey  <edward@fluendo.com>
 
 	* m4/ax_create_stdint_h.m4:
