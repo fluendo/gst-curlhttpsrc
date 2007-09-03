@@ -1,3 +1,8 @@
+2007-09-03  Josep Torra Valles  <josep@fluendo.com>
+
+	* m4/gst-cpu-tune.m4:
+	Added -fomit-frame-pointer at tunning profile for N800.
+
 2007-08-29  Josep Torra Valles  <josep@fluendo.com>
 
 	* m4/Makefile.am:

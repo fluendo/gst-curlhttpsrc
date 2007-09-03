@@ -17,6 +17,9 @@ AC_DEFUN([AG_GST_CPU_TUNE],
       CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -march=armv6j")
     AS_COMPILER_FLAG(-mtune=arm1136j-s, 
       CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -mtune=arm1136j-s")
+    dnl Some assembly code requires -fomit-frame-pointer
+    AS_COMPILER_FLAG(-fomit-frame-pointer, 
+      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -fomit-frame-pointer")
     CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $CPU_TUNE_CFLAGS"
   fi
   
