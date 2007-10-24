@@ -1,3 +1,9 @@
+2007-10-24  Josep Torra Valles  <josep@fluendo.com>
+
+	* m4/gst-check.m4:
+	When gstreamer version is checked, check for >= 0.10.10 and set
+	POST_10_10 on config.h
+
 2007-09-03  Josep Torra Valles  <josep@fluendo.com>
 
 	* m4/gst-cpu-tune.m4:

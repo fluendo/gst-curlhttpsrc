@@ -92,6 +92,13 @@ AC_DEFUN([AG_GST_CHECK_GST],
   fi
   AC_MSG_NOTICE([using GStreamer plug-ins in $GST_PLUGINS_DIR])
   AC_SUBST(GST_PLUGINS_DIR)
+  
+  dnl Check if gestreamer is 0.10.10 or newer, required to know for
+  dnl printf segment extension.
+  PKG_CHECK_MODULES(GST_10_10, gstreamer-0.10 >= 0.10.10,
+    POST_10_10=1, POST_10_10=0)
+  AC_DEFINE_UNQUOTED(POST_10_10, $POST_10_10,
+    [GStreamer version is >= 0.10.10])
 ])
 
 AC_DEFUN([AG_GST_CHECK_GST_BASE],
