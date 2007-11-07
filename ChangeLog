@@ -1,3 +1,9 @@
+2007-11-07  Josep Torra Valles  <josep@fluendo.com>
+
+	* m4/gst-check.m4:
+	Add POST_10_11 to POST_10_14.
+	Patch provided by Christophe Eymard <ceymard@fluendo.com>
+
 2007-10-24  Josep Torra Valles  <josep@fluendo.com>
 
 	* m4/gst-check.m4:
