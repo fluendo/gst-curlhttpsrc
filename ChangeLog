@@ -1,3 +1,12 @@
+2007-11-14  Christophe Eymard  <ceymard@fluendo.com>
+
+	* m4/gst-cpu-tune.m4:
+	Added support for -xO5 for Solaris (default optimization is not
+	added by the autotools)
+	* m4/gst-error.m4:
+	In solaris, added -features=no%extinl to treat extern inlines
+	as they used to be.
+
 2007-11-07  Josep Torra Valles  <josep@fluendo.com>
 
 	* m4/gst-check.m4:

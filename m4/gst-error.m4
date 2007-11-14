@@ -41,6 +41,11 @@ AC_DEFUN([AG_GST_SET_ERROR_CFLAGS],
       AS_COMPILER_FLAG([-errwarn=%all,no%E_EMPTY_DECLARATION,no%E_STATEMENT_NOT_REACHED],
                        [ERROR_CFLAGS="-errwarn=%all,no%E_EMPTY_DECLARATION,no%E_STATEMENT_NOT_REACHED"])
 
+      dnl We are disallowing the new use of extern and inline used together, so that
+      dnl the compiler doesn't freak out on Solaris.
+      AS_COMPILER_FLAG([-features=no%extinl],
+                       [ERROR_CFLAGS="$ERROR_CFLAGS -features=no%extinl"])
+
       dnl if this also isn't suported, try only for -errwarn=%all
       if test "x$ERROR_CFLAGS" == "x"
       then

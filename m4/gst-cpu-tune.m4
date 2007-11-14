@@ -46,6 +46,10 @@ AC_DEFUN([AG_GST_CPU_TUNE],
     [TUNE=yes],
     [TUNE=no]) dnl Default value
      
+  dnl tune build on Solaris with Sun Forte CC
+  AS_COMPILER_FLAG([-xO5],
+    CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -xO5")
+
   if test "x$TUNE" = xyes; then
     AS_COMPILER_FLAG(-mthumb, 
       CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -mthumb")
