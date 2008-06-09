@@ -1,3 +1,8 @@
+2008-06-09  Paul Brossier  <piem@fluendo.com>
+
+	* m4/ipp.m4: add AG_CHECK_IPP macro to check for Intel Integrated
+	Performance Primitives (IPP).
+
 2007-11-14  Christophe Eymard  <ceymard@fluendo.com>
 
 	* m4/gst-cpu-tune.m4:
