@@ -1,3 +1,7 @@
+2008-06-17  Paul Brossier  <piem@fluendo.com>
+
+	* m4/ipp.m4: if --without-ipp is used, define HAVE_IPP to false
+
 2008-06-09  Paul Brossier  <piem@fluendo.com>
 
 	* m4/ipp.m4: add AG_CHECK_IPP macro to check for Intel Integrated

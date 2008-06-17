@@ -58,6 +58,8 @@ AC_DEFUN([AG_CHECK_IPP],
         break
       fi
     done
+  else
+    HAVE_IPP=false
   fi
   AM_CONDITIONAL(USE_IPP, test "x$HAVE_IPP" = "xtrue")
 
