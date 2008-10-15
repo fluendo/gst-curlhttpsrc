@@ -1,3 +1,8 @@
+2008-10-15  Sergi Alvarez  <salvarez@fluendo.com>
+
+	* m4/Makefile.am: Include cflags.m4 for extra-dist
+	* m4/cflags.m4: Initial import of the global cflags/ldflags setup
+
 2008-06-17  Paul Brossier  <piem@fluendo.com>
 
 	* m4/ipp.m4: if --without-ipp is used, define HAVE_IPP to false
