@@ -3,6 +3,7 @@ AC_DEFUN([AG_GST_CPU_TUNE],
 [
   CPU_TUNE_CFLAGS=""
   CPU_TUNE_CCASFLAGS=""
+  CPU_TUNE_LDFLAGS=""
   
   dnl tune build for Nokia N800   
   AC_ARG_ENABLE(cpu-tune-n800,
@@ -46,22 +47,36 @@ AC_DEFUN([AG_GST_CPU_TUNE],
     [TUNE=yes],
     [TUNE=no]) dnl Default value
      
-  dnl tune build on Solaris with Sun Forte CC
-  AS_COMPILER_FLAG([-xO5],
-    CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -xO5")
-
   if test "x$TUNE" = xyes; then
     AS_COMPILER_FLAG(-mthumb, 
       CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -mthumb")
   fi
-    
+
+  dnl tune build on Solaris with Sun Forte CC
+  AC_CHECK_DECL([__SUNPRO_C], [SUNCC="yes"], [SUNCC="no"])
+  if test "x$SUNCC" == "xyes"
+  then
+    AS_COMPILER_FLAG([-xO5],
+      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -xO5")
+    AS_COMPILER_FLAG([-xspace],
+      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -xspace")
+  else
+    AS_COMPILER_FLAG([-fno-strict-aliasing],
+      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -fno-strict-aliasing")
+    NES="-Wl,-znoexecstack"
+    AS_COMPILER_FLAG([$NES], 
+      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS $NES"
+      CPU_TUNE_LDFLAGS=-znoexecstack)
+  fi
+
   AC_SUBST(CPU_TUNE_CFLAGS)
   AC_SUBST(CPU_TUNE_CCASFLAGS)
-  
+  AC_SUBST(CPU_TUNE_LDFLAGS)
+
   if test "x$CPU_TUNE_CFLAGS" != "x"; then  
     AC_MSG_NOTICE(CPU_TUNE_CFLAGS   : $CPU_TUNE_CFLAGS)
     AC_MSG_NOTICE(CPU_TUNE_CCASFLAGS: $CPU_TUNE_CCASFLAGS)
+    AC_MSG_NOTICE(CPU_TUNE_LDFLAGS  : $CPU_TUNE_LDFLAGS)
   fi  
-
 ])
 

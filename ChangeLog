@@ -1,5 +1,11 @@
 2008-10-15  Sergi Alvarez  <salvarez@fluendo.com>
 
+	* m4/Makefile.am: Drop cflags.m4
+	* m4/cflags.m4: Removed file
+	* m4/gst-cpu-tune.m4: Merge cflags.m4 here. Add SunCC check
+
+2008-10-15  Sergi Alvarez  <salvarez@fluendo.com>
+
 	* m4/Makefile.am: Include cflags.m4 for extra-dist
 	* m4/cflags.m4: Initial import of the global cflags/ldflags setup
 
