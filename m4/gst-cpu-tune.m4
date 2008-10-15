@@ -61,12 +61,8 @@ AC_DEFUN([AG_GST_CPU_TUNE],
     AS_COMPILER_FLAG([-xspace],
       CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -xspace")
   else
-    AS_COMPILER_FLAG([-fno-strict-aliasing],
-      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -fno-strict-aliasing")
-    NES="-Wl,-znoexecstack"
-    AS_COMPILER_FLAG([$NES], 
-      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS $NES"
-      CPU_TUNE_LDFLAGS=-znoexecstack)
+    AS_COMPILER_FLAG([-Wl,-znoexecstack], 
+      [CPU_TUNE_LDFLAGS="$CPU_TUNE_LDFLAGS -Wl,-znoexecstack"])
   fi
 
   AC_SUBST(CPU_TUNE_CFLAGS)
