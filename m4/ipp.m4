@@ -18,10 +18,9 @@ AC_DEFUN([AG_CHECK_IPP],
 
   AC_ARG_WITH(ipp-arch,
     AC_HELP_STRING([--with-ipp-arch],
-         [to include only one ipp implementation/architecture, valid values are: 0=all,1=px,2=a6,3=w7,4=t7,5=v8,6=p8]),
+         [to include only one ipp implementation/architecture, valid values are: 0=all,1=px,2=a6,3=w7,4=t7,5=v8,6=p8,7=mx,8=m7,9=u8,10=y8]),
     [IPP_ARCH="${withval}"],
-    [IPP_ARCH="0"],       
-  )
+    [IPP_ARCH="0"])
 
   AC_DEFINE_UNQUOTED(USE_SINGLE_IPP_ARCH, $IPP_ARCH, [Specify one IPP implementation])  
 
