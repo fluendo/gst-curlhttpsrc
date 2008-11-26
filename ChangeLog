@@ -1,3 +1,8 @@
+2008-11-26  Josep Torra  <josep@fluendo.com>
+
+	* m4/gst-cpu-tune.m4:
+	No execstack fixed for solaris. 
+
 2008-10-15  Sergi Alvarez  <salvarez@fluendo.com>
 
 	* m4/Makefile.am: Drop cflags.m4

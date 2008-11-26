@@ -54,17 +54,25 @@ AC_DEFUN([AG_GST_CPU_TUNE],
 
   dnl tune build on Solaris with Sun Forte CC
   AC_CHECK_DECL([__SUNPRO_C], [SUNCC="yes"], [SUNCC="no"])
-  if test "x$SUNCC" == "xyes"
-  then
+  if test "x$SUNCC" == "xyes"; then
     AS_COMPILER_FLAG([-xO5],
       CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -xO5")
     AS_COMPILER_FLAG([-xspace],
       CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -xspace")
-  else
-    AS_COMPILER_FLAG([-Wl,-znoexecstack], 
-      [CPU_TUNE_LDFLAGS="$CPU_TUNE_LDFLAGS -Wl,-znoexecstack"])
   fi
 
+  dnl No execstack depends on the platform
+  case "$host" in
+    *-sun-* | *pc-solaris* )
+      AC_CHECK_FILE([/usr/lib/ld/map.noexstk],
+        [CPU_TUNE_LDFLAGS="${CPU_TUNE_LDFLAGS} -Wl,-M/usr/lib/ld/map.noexstk"])
+      ;;
+    *)
+      AS_COMPILER_FLAG([-Wl,-znoexecstack], 
+        [CPU_TUNE_LDFLAGS="$CPU_TUNE_LDFLAGS -Wl,-znoexecstack"])
+      ;;
+  esac
+      
   AC_SUBST(CPU_TUNE_CFLAGS)
   AC_SUBST(CPU_TUNE_CCASFLAGS)
   AC_SUBST(CPU_TUNE_LDFLAGS)
