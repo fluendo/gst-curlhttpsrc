@@ -36,7 +36,7 @@ AC_DEFUN([AG_CHECK_IPP],
   else
     dnl Assumes that the latest directory created is the one with the correct
     dnl version to use.
-    IPP_AVAIL="`ls -td $IPP_PREFIX/* | sed 's|.*/||'`"
+    IPP_AVAIL="`ls -vrd $IPP_PREFIX/* | sed 's|.*/||'`"
   fi
 
   if test "x$test_ipp" = "xtrue"; then
@@ -51,7 +51,7 @@ AC_DEFUN([AG_CHECK_IPP],
     HAVE_IPP=false
     # Loop over IPP versions 
     for ver in $IPP_AVAIL; do
-      if test -f "$IPP_PREFIX/$ver/$IPP_CPU/include/ippac.h"; then
+      if test -f "$IPP_PREFIX/$ver/$IPP_CPU/include/ipp.h"; then
         HAVE_IPP=true
         AC_DEFINE(USE_IPP, TRUE, [Define whether IPP is available])
         break
