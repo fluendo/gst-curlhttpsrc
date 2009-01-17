@@ -63,6 +63,8 @@ AC_DEFUN([AG_GST_CPU_TUNE],
 
   dnl No execstack depends on the platform
   case "$host" in
+    *darwin*)
+      ;;
     *-sun-* | *pc-solaris* )
       AC_CHECK_FILE([/usr/lib/ld/map.noexstk],
         [CPU_TUNE_LDFLAGS="${CPU_TUNE_LDFLAGS} -Wl,-M/usr/lib/ld/map.noexstk"])

@@ -1,3 +1,8 @@
+2009-01-17  Julien Moutte  <julien@fluendo.com>
+
+	* m4/gst-cpu-tune.m4: Darwin does not have the execstack flag.
+	Fix the macro.
+
 2008-11-28  Josep Torra  <josep@fluendo.com>
 
 	* m4/ipp.m4:
