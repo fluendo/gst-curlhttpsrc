@@ -1,3 +1,9 @@
+2009-01-20  Sergi Alvarez  <salvarez@fluendo.com>
+
+	* gst-fluendo.h: Initial import of the fluendo 'static-plugin' macro
+	* m4/gst-static-plugin.m4: Add --enable-static-plugin flag (implemented
+	in AG_GST_STATIC_PLUGIN m4 macro)
+
 2009-01-17  Julien Moutte  <julien@fluendo.com>
 
 	* m4/gst-cpu-tune.m4: Darwin does not have the execstack flag.
