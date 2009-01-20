@@ -1,5 +1,9 @@
 2009-01-20  Sergi Alvarez  <salvarez@fluendo.com>
 
+	* gst-fluendo.h: #if -> #ifdef
+
+2009-01-20  Sergi Alvarez  <salvarez@fluendo.com>
+
 	* m4/gst-static-plugin.m4: Rename AG_GST_STATIC.. to AG_GST_ARG_STATIC..
 
 2009-01-20  Sergi Alvarez  <salvarez@fluendo.com>

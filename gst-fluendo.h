@@ -1,7 +1,7 @@
 #ifndef _INCLUDE_NOPIC_H_
 #define _INCLUDE_NOPIC_H_
 
-#if ENABLE_STATIC_PLUGIN
+#ifdef ENABLE_STATIC_PLUGIN
 
 #define FLUENDO_PLUGIN_DEFINE(major, minor, name, fun, desc, init, version, \
   license, pkg, url) \
