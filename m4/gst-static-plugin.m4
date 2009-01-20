@@ -1,6 +1,6 @@
 dnl Disable pic build and 
 
-AC_DEFUN([AG_GST_STATIC_PLUGIN],
+AC_DEFUN([AG_GST_ARG_STATIC_PLUGIN],
 [
   STATIC_PLUGIN_CFLAGS=""
   AC_ARG_ENABLE(static-plugin,
