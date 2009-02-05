@@ -1,3 +1,7 @@
+2009-02-05  Sergi Alvarez  <salvarez@fluendo.com>
+
+	* Makefile.am: Add gst-fluendo.h in EXTRA_DIST
+
 2009-01-20  Sergi Alvarez  <salvarez@fluendo.com>
 
 	* gst-fluendo.h: #if -> #ifdef
