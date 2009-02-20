@@ -4,6 +4,25 @@ AC_DEFUN([AG_GST_CPU_TUNE],
   CPU_TUNE_CFLAGS=""
   CPU_TUNE_CCASFLAGS=""
   CPU_TUNE_LDFLAGS=""
+
+  dnl tune build for Atom
+  AC_ARG_ENABLE(cpu-tune-atom,
+    AC_HELP_STRING([--enable-cpu-tune-atom], 
+      [enable CFLAGS/CCASFLAGS tuned for Intel Atom]),
+    [TUNE=yes],
+    [TUNE=no]) dnl Default value
+    
+  if test "x$TUNE" = xyes; then
+    AC_MSG_NOTICE(Build will be tuned for Intel Atom)
+    AS_COMPILER_FLAG(-O3, 
+      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -O3")
+    AS_COMPILER_FLAG(-msse3, 
+      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -msse3")
+    AS_COMPILER_FLAG(-march=nocona, 
+      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -march=nocona")
+    AS_COMPILER_FLAG(-mfpmath=sse, 
+      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -mfpmath=sse")
+  fi
   
   dnl tune build for Nokia N800   
   AC_ARG_ENABLE(cpu-tune-n800,

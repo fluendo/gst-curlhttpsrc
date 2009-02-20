@@ -1,3 +1,9 @@
+2009-02-20  Josep Torra  <josep@fluendo.com>
+
+	* m4/gst-cpu-tune.m4:
+	* m4/ipp.m4:
+	Added helpers to do builds for Intel Atom and IPP/lp32.
+
 2009-02-05  Sergi Alvarez  <salvarez@fluendo.com>
 
 	* Makefile.am: Add gst-fluendo.h in EXTRA_DIST
