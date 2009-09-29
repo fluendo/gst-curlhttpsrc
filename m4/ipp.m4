@@ -1,7 +1,14 @@
 dnl Detection of Intel Integrated Performance Primitives IPP
 AC_DEFUN([AG_CHECK_IPP],
 [
-
+  BUILD_IN_MACOS=false
+  case "$host_os" in
+    *darwin*)
+      BUILD_IN_MACOS=true
+      ;;
+  esac
+  AM_CONDITIONAL(BUILD_IN_MACOS, test "x$BUILD_IN_MACOS" = "xtrue")
+  
   dnl Setup for finding IPP libraries. Attempt to detect by default.
   test_ipp=true
   AC_MSG_CHECKING([for Intel Performance Primitives library])
@@ -27,7 +34,11 @@ AC_DEFUN([AG_CHECK_IPP],
   if test -n "$IPP_PATH"; then
     IPP_PREFIX="$IPP_PATH"
   else
-    IPP_PREFIX="/opt/intel/ipp"
+    if test "x$BUILD_IN_MACOS" = "xtrue"; then
+      IPP_PREFIX="/Library/Frameworks/Intel_IPP.framework/Versions"
+    else
+      IPP_PREFIX="/opt/intel/ipp"
+    fi
   fi
 
   dnl List available ipp versions
@@ -36,37 +47,58 @@ AC_DEFUN([AG_CHECK_IPP],
   else
     dnl Assumes that the latest directory created is the one with the correct
     dnl version to use.
-    IPP_AVAIL="`ls -vrd $IPP_PREFIX/* | sed 's|.*/||'`"
+    IPP_AVAIL="`ls -vrd $IPP_PREFIX/* | sed 's|.*/||' 2>/dev/null`"
   fi
-
+ 
   if test "x$test_ipp" = "xtrue"; then
-    if test "x$IPP_ARCH" = "x11" ; then
-      IPP_CPU="lp32"
+    if test "x$BUILD_IN_MACOS" = "xtrue"; then
+      HAVE_IPP=false
+      # Loop over IPP versions 
+      for ver in $IPP_AVAIL; do
+        if test -f "$IPP_PREFIX/$ver/Include/ipp.h"; then
+          HAVE_IPP=true
+          AC_DEFINE(USE_IPP, TRUE, [Define whether IPP is available])
+          break
+        fi
+      done
       IPP_SUFFIX=""
     else
-      if test "x$host_cpu" = "xamd64" -o "x$host_cpu" = "xx86_64" ; then
-        IPP_CPU="em64t"
-        IPP_SUFFIX="em64t"
-      else
-        IPP_CPU="ia32"
+      if test "x$IPP_ARCH" = "x11" ; then
+        IPP_CPU="lp32"
         IPP_SUFFIX=""
+      else
+        if test "x$host_cpu" = "xamd64" -o "x$host_cpu" = "xx86_64" ; then
+          IPP_CPU="em64t"
+          IPP_SUFFIX="em64t"
+        else
+          IPP_CPU="ia32"
+          IPP_SUFFIX=""
+        fi
       fi
+      HAVE_IPP=false
+      # Loop over IPP versions 
+      for ver in $IPP_AVAIL; do
+        if test -f "$IPP_PREFIX/$ver/$IPP_CPU/include/ipp.h"; then
+          HAVE_IPP=true
+          AC_DEFINE(USE_IPP, TRUE, [Define whether IPP is available])
+          break
+        fi
+      done
     fi
-    HAVE_IPP=false
-    # Loop over IPP versions 
-    for ver in $IPP_AVAIL; do
-      if test -f "$IPP_PREFIX/$ver/$IPP_CPU/include/ipp.h"; then
-        HAVE_IPP=true
-        AC_DEFINE(USE_IPP, TRUE, [Define whether IPP is available])
-        break
-      fi
-    done
   else
     HAVE_IPP=false
   fi
   AM_CONDITIONAL(USE_IPP, test "x$HAVE_IPP" = "xtrue")
 
   if test "x$HAVE_IPP" = "xtrue"; then
+    if test "x$BUILD_IN_MACOS" = "xtrue"; then
+      IPP_PATH="${IPP_PREFIX}/${ver}"
+      IPP_INCLUDES="-I${IPP_PATH}/Include"
+    else
+      IPP_PATH="${IPP_PREFIX}/${ver}/${IPP_CPU}"
+      IPP_INCLUDES="-I${IPP_PATH}/include"
+      AC_DEFINE(USE_IPP_MERGED, TRUE, [Define whether USE_IPP_MERGED could be used])
+    fi
     AC_MSG_RESULT([yes (using version $ver)])
   else
     if test "x$test_ipp" = "xtrue"; then

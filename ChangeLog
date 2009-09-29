@@ -1,3 +1,8 @@
+2009-09-29  Josep Torra  <josep@fluendo.com>
+
+	* m4/ipp.m4:
+	Added some stuff to build with IPP in Mac OS X.
+
 2009-06-05  Josep Torra  <josep@fluendo.com>
 
 	* m4/gst-fionread.m4:
