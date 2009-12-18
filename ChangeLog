@@ -1,3 +1,8 @@
+2009-12-18  Thijs Vermeir <thijs@fluendo.com>
+
+	* m4/gst-static-plugin.m4: Don't loose prev CFLAGS when
+  using --enable-static-plugin
+
 2009-09-29  Josep Torra  <josep@fluendo.com>
 
 	* m4/ipp.m4:
