@@ -33,22 +33,30 @@ typedef struct _GstFluStatistics
 static inline void gstflu_setup_statistics(GstPad *sink, GstFluStatistics *stats)
 {
 	GstQuery *q;
+	GstPad *peer;
 	gboolean res;
 
 	stats->decoded_duration = 0;
+	peer = gst_pad_get_peer (sink);
+
+	if (!peer)
+		return;
+
 	q = gst_query_new_duration (GST_FORMAT_TIME);
-	res = gst_pad_peer_query (sink, q);
+	res = gst_pad_query (peer, q);
 
 	if (res) {
 		gint64 duration;
 
 		gst_query_parse_duration (q, NULL, &duration);
-		gst_query_unref (q);
 		stats->max_duration = DEMO_PERCENT * duration / 100;
 	}
 	else {
 		stats->max_duration = G_GINT64_CONSTANT(30000000000); /* 30 seconds */
 	}
+
+	gst_query_unref (q);
+	gst_object_unref (peer);
 }
 
 static inline gboolean gstflu_pad_push(GstPad *src, GstBuffer *out_buf, GstFluStatistics *stats)
@@ -59,8 +67,10 @@ static inline gboolean gstflu_pad_push(GstPad *src, GstBuffer *out_buf, GstFluSt
 	element = gst_pad_get_parent_element (src);
 	gst_element_get_state (element, &state, NULL, 0);
 
-	if (state != GST_STATE_PLAYING)
+	if (state != GST_STATE_PLAYING) {
+		gst_object_unref (element);
 		return gst_pad_push (src, out_buf);
+	}
 
 	stats->decoded_duration += GST_BUFFER_DURATION (out_buf);
 	if (G_UNLIKELY(stats->decoded_duration >= stats->max_duration)) {
@@ -71,9 +81,11 @@ static inline gboolean gstflu_pad_push(GstPad *src, GstBuffer *out_buf, GstFluSt
 				   " technology. To get a licensed copy of this Fluendo"
 				   " product please contact sales@fluendo.com."),
 				  NULL);
+		gst_object_unref (element);
 		return FALSE;
 	}
 	else {
+		gst_object_unref (element);
 		return gst_pad_push (src, out_buf);
 	}
 }
