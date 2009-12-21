@@ -34,42 +34,39 @@ static inline void gstflu_setup_statistics(GstPad *sink, GstFluStatistics *stats
 {
 	GstQuery *q;
 	GstPad *peer;
-	gboolean res;
+	GstFormat fmt;
+	gint64 duration;
 
 	stats->decoded_duration = 0;
 	peer = gst_pad_get_peer (sink);
 
 	if (!peer)
 		return;
-
 	q = gst_query_new_duration (GST_FORMAT_TIME);
-	if (!q)
-		return;
+	if (!q) goto p_out;
 
-	res = gst_pad_query (peer, q);
-	if (res) {
-		gint64 duration;
+	if (!gst_pad_query (peer, q))
+		goto q_out;
 
-		gst_query_parse_duration (q, NULL, &duration);
-		stats->max_duration = DEMO_PERCENT * duration / 100;
-	}
-	else {
+	gst_query_parse_duration (q, &fmt, &duration);
+	if (fmt != GST_FORMAT_TIME || !GST_CLOCK_TIME_IS_VALID (duration))
 		stats->max_duration = G_GINT64_CONSTANT(30000000000); /* 30 seconds */
-	}
+	else
+		stats->max_duration = gst_util_uint64_scale_int(duration, DEMO_PERCENT, 100);
 
+q_out:
 	gst_query_unref (q);
+p_out:
 	gst_object_unref (peer);
 }
 
 static inline gboolean gstflu_pad_push(GstPad *src, GstBuffer *out_buf, GstFluStatistics *stats)
 {
 	GstElement *element;
-	GstState state;
 
 	element = gst_pad_get_parent_element (src);
-	gst_element_get_state (element, &state, NULL, 0);
 
-	if (state != GST_STATE_PLAYING) {
+	if (GST_STATE_PLAYING != GST_STATE(element)) {
 		gst_object_unref (element);
 		return gst_pad_push (src, out_buf);
 	}
