@@ -43,8 +43,10 @@ static inline void gstflu_setup_statistics(GstPad *sink, GstFluStatistics *stats
 		return;
 
 	q = gst_query_new_duration (GST_FORMAT_TIME);
-	res = gst_pad_query (peer, q);
+	if (!q)
+		return;
 
+	res = gst_pad_query (peer, q);
 	if (res) {
 		gint64 duration;
 
