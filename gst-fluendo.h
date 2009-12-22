@@ -18,75 +18,76 @@
 
 #endif
 
-
-typedef struct _GstFluStatistics
-{
-	gint64 max_duration;
-	gint64 decoded_duration;
-} GstFluStatistics;
-
 #if ENABLE_DEMO_PLUGIN
+
+typedef struct _GstFluStatistics {
+  gint64 max_duration;
+  gint64 decoded_duration;
+} GstFluStatistics;
 
 #define GSTFLU_SETUP_STATISTICS(sink, stats) gstflu_setup_statistics (sink, stats)
 #define GSTFLU_PAD_PUSH(src, buf, stats) gstflu_pad_push (src, buf, stats)
 
-static inline void gstflu_setup_statistics(GstPad *sink, GstFluStatistics *stats)
+static inline void
+gstflu_setup_statistics (GstPad *sink, GstFluStatistics *stats)
 {
-	GstQuery *q;
-	GstPad *peer;
-	GstFormat fmt;
-	gint64 duration;
+  GstQuery *q;
+  GstPad *peer;
+  GstFormat fmt;
+  gint64 duration;
 
-	stats->decoded_duration = 0;
-	peer = gst_pad_get_peer (sink);
+  stats->decoded_duration = 0;
+  peer = gst_pad_get_peer (sink);
 
-	if (!peer)
-		return;
-	q = gst_query_new_duration (GST_FORMAT_TIME);
-	if (!q) goto p_out;
+  if (!peer)
+    return;
 
-	if (!gst_pad_query (peer, q))
-		goto q_out;
+  q = gst_query_new_duration (GST_FORMAT_TIME);
+  if (!q) goto p_out;
 
-	gst_query_parse_duration (q, &fmt, &duration);
-	if (fmt != GST_FORMAT_TIME || !GST_CLOCK_TIME_IS_VALID (duration))
-		stats->max_duration = G_GINT64_CONSTANT(30000000000); /* 30 seconds */
-	else
-		stats->max_duration = gst_util_uint64_scale_int(duration, DEMO_PERCENT, 100);
+  if (!gst_pad_query (peer, q))
+    goto q_out;
+
+  gst_query_parse_duration (q, &fmt, &duration);
+  if (fmt != GST_FORMAT_TIME || !GST_CLOCK_TIME_IS_VALID (duration))
+    stats->max_duration = G_GINT64_CONSTANT (30000000000); /* 30 seconds */
+  else
+    stats->max_duration = gst_util_uint64_scale_int (duration, DEMO_PERCENT, 100);
 
 q_out:
-	gst_query_unref (q);
+  gst_query_unref (q);
 p_out:
-	gst_object_unref (peer);
+  gst_object_unref (peer);
 }
 
-static inline gboolean gstflu_pad_push(GstPad *src, GstBuffer *out_buf, GstFluStatistics *stats)
+static inline gboolean
+gstflu_pad_push (GstPad *src, GstBuffer *out_buf, GstFluStatistics *stats)
 {
-	GstElement *element;
+  GstElement *element;
 
-	element = gst_pad_get_parent_element (src);
+  element = gst_pad_get_parent_element (src);
 
-	if (GST_STATE_PLAYING != GST_STATE(element)) {
-		gst_object_unref (element);
-		return gst_pad_push (src, out_buf);
-	}
+  if (GST_STATE_PLAYING != GST_STATE (element)) {
+    gst_object_unref (element);
+    return gst_pad_push (src, out_buf);
+  }
 
-	stats->decoded_duration += GST_BUFFER_DURATION (out_buf);
-	if (G_UNLIKELY(stats->decoded_duration >= stats->max_duration)) {
-		gst_pad_push_event (src, gst_event_new_eos());
-		GST_ELEMENT_ERROR (element, STREAM, FAILED,
-				  ("Fluendo decoders terminated playback of this media"
-				   " stream as this is an evaluation version of Fluendo's"
-				   " technology. To get a licensed copy of this Fluendo"
-				   " product please contact sales@fluendo.com."),
-				  NULL);
-		gst_object_unref (element);
-		return FALSE;
-	}
-	else {
-		gst_object_unref (element);
-		return gst_pad_push (src, out_buf);
-	}
+  stats->decoded_duration += GST_BUFFER_DURATION (out_buf);
+  if (G_UNLIKELY (stats->decoded_duration >= stats->max_duration)) {
+    gst_pad_push_event (src, gst_event_new_eos());
+    GST_ELEMENT_ERROR (element, STREAM, FAILED,
+        ("Fluendo decoders terminated playback of this media"
+         " stream as this is an evaluation version of Fluendo's"
+         " technology. To get a licensed copy of this Fluendo"
+         " product please contact sales@fluendo.com."),
+         NULL);
+    gst_object_unref (element);
+    return FALSE;
+  }
+  else {
+    gst_object_unref (element);
+    return gst_pad_push (src, out_buf);
+  }
 }
 
 #else
