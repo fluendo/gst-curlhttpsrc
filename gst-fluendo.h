@@ -27,6 +27,7 @@ typedef struct _GstFluStatistics {
 
 #define GSTFLU_SETUP_STATISTICS(sink, stats) gstflu_setup_statistics (sink, stats)
 #define GSTFLU_PAD_PUSH(src, buf, stats) gstflu_pad_push (src, buf, stats)
+#define GSTFLU_STATISTICS GstFluStatistics stats
 
 static inline void
 gstflu_setup_statistics (GstPad *sink, GstFluStatistics *stats)
@@ -94,6 +95,7 @@ gstflu_pad_push (GstPad *src, GstBuffer *out_buf, GstFluStatistics *stats)
 
 #define GSTFLU_SETUP_STATISTICS(sink, stats)
 #define GSTFLU_PAD_PUSH(src, buf, stats) gst_pad_push (src, buf)
+#define GSTFLU_STATISTICS
 
 #endif /* ENABLE_DEMO_PLUGIN */
 
