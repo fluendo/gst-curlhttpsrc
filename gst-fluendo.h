@@ -73,7 +73,7 @@ p_out:
   gst_object_unref (peer);
 }
 
-static inline gboolean
+static inline GstFlowReturn
 gstflu_pad_push (GstPad *src, GstBuffer *out_buf, GstFluStatistics *stats)
 {
   GstElement *element;
@@ -95,7 +95,8 @@ gstflu_pad_push (GstPad *src, GstBuffer *out_buf, GstFluStatistics *stats)
          " product please contact sales@fluendo.com."),
          NULL);
     gst_object_unref (element);
-    return FALSE;
+    gst_buffer_unref (out_buf);
+    return GST_FLOW_ERROR;
   }
   else {
     gst_object_unref (element);
