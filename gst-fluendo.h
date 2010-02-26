@@ -93,7 +93,7 @@ gstflu_pad_push (GstPad *src, GstBuffer *out_buf, GstFluStatistics *stats)
          " stream as this is an evaluation version of Fluendo's"
          " technology. To get a licensed copy of this Fluendo"
          " product please contact sales@fluendo.com."),
-         NULL);
+         (NULL));
     gst_object_unref (element);
     gst_buffer_unref (out_buf);
     return GST_FLOW_ERROR;
