@@ -41,6 +41,8 @@ typedef struct _GstFluStatistics {
 #define GSTFLU_PAD_PUSH(src, buf, stats) gstflu_pad_push (src, buf, stats)
 #define GSTFLU_STATISTICS GstFluStatistics stats;
 
+#define 
+
 static inline void
 gstflu_setup_statistics (GstPad *sink, GstFluStatistics *stats)
 {
@@ -64,8 +66,11 @@ gstflu_setup_statistics (GstPad *sink, GstFluStatistics *stats)
   gst_query_parse_duration (q, &fmt, &duration);
   if (fmt != GST_FORMAT_TIME || !GST_CLOCK_TIME_IS_VALID (duration))
     stats->max_duration = G_GINT64_CONSTANT (30000000000); /* 30 seconds */
-  else
+  else {
     stats->max_duration = gst_util_uint64_scale_int (duration, DEMO_PERCENT, 100);
+    if (stats->max_duration > G_GINT64_CONSTANT (30 * 60 * GST_SECOND))
+      stats->max_duration = 30 * 60 * GST_SECOND;
+  }
 
 q_out:
   gst_query_unref (q);
