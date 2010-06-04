@@ -49,6 +49,8 @@ gstflu_setup_statistics (GstPad *sink, GstFluStatistics *stats)
   GstFormat fmt;
   gint64 duration;
 
+  /* 30 seconds in case we can't figure out the duration of the clip */
+  stats->max_duration = G_GINT64_CONSTANT (30000000000);
   stats->decoded_duration = 0;
   peer = gst_pad_get_peer (sink);
 
@@ -62,12 +64,14 @@ gstflu_setup_statistics (GstPad *sink, GstFluStatistics *stats)
     goto q_out;
 
   gst_query_parse_duration (q, &fmt, &duration);
-  if (fmt != GST_FORMAT_TIME || !GST_CLOCK_TIME_IS_VALID (duration))
-    stats->max_duration = G_GINT64_CONSTANT (30000000000); /* 30 seconds */
-  else {
+  if (fmt == GST_FORMAT_TIME && GST_CLOCK_TIME_IS_VALID (duration)) {
     stats->max_duration = gst_util_uint64_scale_int (duration, DEMO_PERCENT, 100);
+    /* max 30 minutes */
     if (stats->max_duration > G_GINT64_CONSTANT (30 * 60 * 100000000))
       stats->max_duration = G_GINT64_CONSTANT (30 * 60 * 100000000);
+    /* min 30 seconds */
+    else if (stats->max_duration < G_GINT64_CONSTANT (30 * 100000000))
+      stats->max_duration = G_GINT64_CONSTANT (30 * 100000000);
   }
 
 q_out:
