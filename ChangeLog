@@ -1,3 +1,8 @@
+2011-02-09  Jorge Zapata <jzapata@fluendo.com>
+
+	* m4/gst-demo-plugin.m4:
+	Always define the ENABLE_DEMO_PLUGIN with the correct value
+
 2009-12-18  Thijs Vermeir <thijs@fluendo.com>
 
 	* m4/gst-static-plugin.m4: Don't loose prev CFLAGS when
