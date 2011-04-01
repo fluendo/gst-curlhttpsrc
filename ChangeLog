@@ -1,3 +1,8 @@
+2011-04-01  Josep Torra  <josep@fluendo.com>
+
+	* m4/ipp.m4:
+	Fix location for IPP 7 in Mac OSX.
+
 2011-03-31  Jorge Zapata <jzapata@fluendo.com>
 
 	* gst-fluendo.h:

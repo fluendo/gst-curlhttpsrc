@@ -35,7 +35,7 @@ AC_DEFUN([AG_CHECK_IPP],
     IPP_PREFIX="$IPP_PATH"
   else
     if test "x$BUILD_IN_MACOS" = "xtrue"; then
-      IPP_PREFIX="/Library/Frameworks/Intel_IPP.framework/Versions"
+      IPP_PREFIX="/Developer/opt/intel/ipp/"
     else
       IPP_PREFIX="/opt/intel/ipp"
     fi
@@ -55,7 +55,7 @@ AC_DEFUN([AG_CHECK_IPP],
       HAVE_IPP=false
       # Loop over IPP versions 
       for ver in $IPP_AVAIL; do
-        if test -f "$IPP_PREFIX/$ver/Include/ipp.h"; then
+        if test -f "$IPP_PREFIX/include/ipp.h"; then
           HAVE_IPP=true
           AC_DEFINE(USE_IPP, TRUE, [Define whether IPP is available])
           break
@@ -92,8 +92,8 @@ AC_DEFUN([AG_CHECK_IPP],
 
   if test "x$HAVE_IPP" = "xtrue"; then
     if test "x$BUILD_IN_MACOS" = "xtrue"; then
-      IPP_PATH="${IPP_PREFIX}/${ver}"
-      IPP_INCLUDES="-I${IPP_PATH}/Include"
+      IPP_PATH="${IPP_PREFIX}"
+      IPP_INCLUDES="-I${IPP_PATH}/include"
     else
       IPP_PATH="${IPP_PREFIX}/${ver}/${IPP_CPU}"
       IPP_INCLUDES="-I${IPP_PATH}/include"
