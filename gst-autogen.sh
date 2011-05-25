@@ -233,6 +233,18 @@ autogen_options ()
 	  echo "+ passing --prefix=$1 to configure"
           shift
           ;;
+      --build=*)
+	  CONFIGURE_EXT_OPT="$CONFIGURE_EXT_OPT --build=$optarg"
+	  echo "+ passing --build=$optarg to configure"
+          shift
+          ;;
+      --build)
+	  shift
+	  echo "DEBUG: $1"
+	  CONFIGURE_EXT_OPT="$CONFIGURE_EXT_OPT --build=$1"
+	  echo "+ passing --build=$1 to configure"
+          shift
+          ;;
 
       -h|--help)
           echo "autogen.sh (autogen options) -- (configure options)"

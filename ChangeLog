@@ -1,3 +1,8 @@
+2011-05-25  Josep Torra  <josep@fluendo.com>
+
+	* gst-autogen.sh:
+	Accept --build as a valid argument to be provided to configure.
+
 2011-04-01  Josep Torra  <josep@fluendo.com>
 
 	* m4/ipp.m4:
