@@ -108,6 +108,8 @@ AC_DEFUN([AG_CHECK_IPP],
     fi
   fi
 
+  dnl ippmerged needs to know wheter to link or not when building a static or dynamic library
+  AM_CONDITIONAL(BUILD_STATIC, test "x$enable_static" = "xyes" -a "x$enable_shared" = "xno")
 
 ])
 
