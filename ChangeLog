@@ -1,3 +1,9 @@
+2011-06-27  Jorge Zapata  <jzapata@fluendo.com>
+
+	* m4/ipp.m4:
+	Add a common function to set the needed IPP variables, just pass
+	the list of IPP libraries you need to include
+
 2011-05-25  Josep Torra  <josep@fluendo.com>
 
 	* gst-autogen.sh:

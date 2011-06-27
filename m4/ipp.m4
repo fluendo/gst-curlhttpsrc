@@ -113,3 +113,60 @@ AC_DEFUN([AG_CHECK_IPP],
 
 ])
 
+dnl Given a list of ipp libraries to link with, set the needed variables for building
+dnl Usage: AG_NEED_IPP([IPP LIBS], [FUNCTION LIST PATH])
+AC_DEFUN([AG_NEED_IPP],
+[
+  HAVE_IPP=false
+  AG_CHECK_IPP
+  if test "$HAVE_IPP" = "false"; then
+    AC_MSG_WARN([Intel Performance Primitives not found in $IPP_PREFIX])
+  else
+    NEED_LIST=$1
+    IPP_LIST="ippcore "
+    if test "x$BUILD_IN_MACOS" = "xtrue"; then
+      IPP_LIST=${NEED_LIST}
+      IPP_SUFFIX="_l"
+    else
+      for lib in ${NEED_LIST}; do
+        IPP_LIST+="${lib}merged "
+        IPP_TRAMPOLINE_LIST+="${lib}emerged "
+      done
+    fi
+    IPP_LIBS=""
+    IPP_ARCHIVES=""
+
+    for lib in ${IPP_LIST}; do
+      IPP_LIBS+=" -l${lib}${IPP_SUFFIX}"
+      IPP_ARCHIVES+=" lib${lib}${IPP_SUFFIX}.a"
+    done
+    for lib in ${IPP_TRAMPOLINE_LIST}; do
+      IPP_TRAMPOLINE_LIBS+=" -l${lib}${IPP_SUFFIX}"
+    done
+  fi
+  AC_SUBST(IPP_PATH)      dnl source directory
+  AC_SUBST(IPP_INCLUDES)    dnl cflags
+  AC_SUBST(IPP_LIBS)      dnl ldflags
+  AC_SUBST(IPP_TRAMPOLINE_LIBS)      dnl ldflags
+  AC_SUBST(IPP_ARCHIVES)  dnl to iterate
+  if test -z $2; then
+    IPP_FUNC_PATH="src"
+  else
+    IPP_FUNC_PATH=$2
+  fi
+  AC_SUBST(IPP_FUNC_PATH)
+  AM_CONDITIONAL(USE_IPP, test "x$HAVE_IPP" = "xtrue")
+
+  dnl Permit patching IPP library to avoid reallocation problems
+  ipp_patch_realloc=false
+  AC_ARG_WITH(ipp-patch-realloc,
+    AC_HELP_STRING([--with-ipp-patch-realloc],
+        [Turn on/off patching of IPP for reallocatable code (default=no)]),
+        [if test "x$withval" = "xyes"; then ipp_patch_realloc=true; fi])
+  dnl Disable patching on 64 bits
+  if test "x$HAVE_CPU_X86_64" = "xyes" ; then
+    ipp_patch_realloc=false
+  fi  
+  AM_CONDITIONAL(IPP_PATCH_REALLOC, ${ipp_patch_realloc})
+])
+
