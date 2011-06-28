@@ -123,9 +123,10 @@ AC_DEFUN([AG_NEED_IPP],
     AC_MSG_WARN([Intel Performance Primitives not found in $IPP_PREFIX])
   else
     NEED_LIST=$1
-    IPP_LIST="ippcore "
+    IPP_TRAMPOLINE_LIST=""
+    IPP_LIST=""
     if test "x$BUILD_IN_MACOS" = "xtrue"; then
-      IPP_LIST=${NEED_LIST}
+      IPP_LIST+=${NEED_LIST}
       IPP_SUFFIX="_l"
     else
       for lib in ${NEED_LIST}; do
@@ -133,6 +134,10 @@ AC_DEFUN([AG_NEED_IPP],
         IPP_TRAMPOLINE_LIST+="${lib}emerged "
       done
     fi
+    dnl put ippcore at the end, when linking the symbols are not resolved recursively
+    IPP_LIST+="ippcore"
+    IPP_TRAMPOLINE_LIST+="ippcore"
+
     IPP_LIBS=""
     IPP_ARCHIVES=""
 

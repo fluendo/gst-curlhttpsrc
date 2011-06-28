@@ -1,3 +1,8 @@
+2011-06-28  Jorge Zapata  <jzapata@fluendo.com>
+
+	* m4/ipp.m4:
+	Always put ippcore at the end
+
 2011-06-27  Jorge Zapata  <jzapata@fluendo.com>
 
 	* m4/ipp.m4:
