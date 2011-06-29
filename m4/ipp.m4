@@ -142,12 +142,22 @@ AC_DEFUN([AG_NEED_IPP],
     IPP_ARCHIVES=""
 
     for lib in ${IPP_LIST}; do
-      IPP_LIBS+=" -l${lib}${IPP_SUFFIX}"
-      IPP_ARCHIVES+=" lib${lib}${IPP_SUFFIX}.a"
+      if test "x$THREAD_SAFE" = "xyes"; then
+        IPP_LIBS+=" -l${lib}${IPP_SUFFIX}_t"
+        IPP_ARCHIVES+=" lib${lib}${IPP_SUFFIX}_t.a"
+      else
+        IPP_LIBS+=" -l${lib}${IPP_SUFFIX}"
+        IPP_ARCHIVES+=" lib${lib}${IPP_SUFFIX}.a"
+      fi
     done
     for lib in ${IPP_TRAMPOLINE_LIST}; do
       IPP_TRAMPOLINE_LIBS+=" -l${lib}${IPP_SUFFIX}"
     done
+
+    if test "x$THREAD_SAFE" = "xyes"; then 
+      IPP_LIBS+=" -lirc -liomp5" 
+    fi  
+
   fi
   AC_SUBST(IPP_PATH)      dnl source directory
   AC_SUBST(IPP_INCLUDES)    dnl cflags

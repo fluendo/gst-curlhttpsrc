@@ -1,3 +1,8 @@
+2011-06-29  Jorge Zapata <jzapata@fluendo.com>
+
+	* m4/ipp.m4:
+	Add the thread safe variant for ipp
+
 2011-06-28  Jorge Zapata  <jzapata@fluendo.com>
 
 	* m4/ipp.m4:
