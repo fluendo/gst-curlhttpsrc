@@ -119,4 +119,14 @@ gstflu_pad_push (GstPad *src, GstBuffer *out_buf, GstFluStatistics *stats)
 
 #endif /* ENABLE_DEMO_PLUGIN */
 
+#ifndef POST_10_14
+#define gst_element_class_set_details_simple( \
+    klass, longname, classification, description, author) \
+    { \
+      GstElementDetails details = { \
+        longname, classification, description, author}; \
+      gst_element_class_set_details (klass, &details); \
+    }
+#endif
+
 #endif /* _INCLUDE_NOPIC_H_ */
