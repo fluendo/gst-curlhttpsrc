@@ -16,10 +16,15 @@ AC_DEFUN([AG_GST_CPU_TUNE],
     AC_MSG_NOTICE(Build will be tuned for Intel Atom)
     AS_COMPILER_FLAG(-O3, 
       CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -O3")
-    AS_COMPILER_FLAG(-msse3, 
-      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -msse3")
-    AS_COMPILER_FLAG(-march=nocona, 
-      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -march=nocona")
+    AS_COMPILER_FLAG(-march=atom, [march_atom=yes], [march_atom=no])
+    if test "x$march_atom" = xyes; then
+      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -march=atom"
+    else    
+      AS_COMPILER_FLAG(-msse3, 
+        CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -msse3")
+      AS_COMPILER_FLAG(-march=nocona, 
+        CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -march=nocona")
+    fi
     AS_COMPILER_FLAG(-mfpmath=sse, 
       CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -mfpmath=sse")
   fi

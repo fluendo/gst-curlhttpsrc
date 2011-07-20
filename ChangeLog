@@ -1,3 +1,9 @@
+2011-07-20  Josep Torra  <josep@fluendo.com>
+
+	* m4/gst-cpu-tune.m4:
+	Improve --enable-cpu-tune-atom to handle -march=atom available
+	in modern GCC versions.
+
 2011-06-29  Jorge Zapata <jzapata@fluendo.com>
 
 	* m4/ipp.m4:
