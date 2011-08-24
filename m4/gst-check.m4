@@ -119,6 +119,21 @@ AC_DEFUN([AG_GST_CHECK_GST],
     POST_10_14=1, POST_10_14=0)
   AC_DEFINE_UNQUOTED(POST_10_14, $POST_10_14,	
     [GStreamer version is >= 0.10.14])
+
+  PKG_CHECK_MODULES(GST_10_21, gstreamer-0.10 >= 0.10.21,
+    POST_10_21=1, POST_10_21=0)
+  AC_DEFINE_UNQUOTED(POST_10_21, $POST_10_21,
+    [GStreamer version is >= 0.10.21])
+
+  PKG_CHECK_MODULES(GST_10_25, gstreamer-0.10 >= 0.10.25,
+    POST_10_25=1, POST_10_25=0)
+  AC_DEFINE_UNQUOTED(POST_10_25, $POST_10_25,
+    [GStreamer version is >= 0.10.25])
+
+  PKG_CHECK_MODULES(GST_10_26, gstreamer-0.10 >= 0.10.26,
+    POST_10_26=1, POST_10_26=0)
+  AC_DEFINE_UNQUOTED(POST_10_26, $POST_10_26,
+    [GStreamer version is >= 0.10.26])
 ])
 
 AC_DEFUN([AG_GST_CHECK_GST_BASE],
