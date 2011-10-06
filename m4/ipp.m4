@@ -135,8 +135,8 @@ AC_DEFUN([AG_NEED_IPP],
       done
     fi
     dnl put ippcore at the end, when linking the symbols are not resolved recursively
-    IPP_LIST+="ippcore"
-    IPP_TRAMPOLINE_LIST+="ippcore"
+    IPP_LIST+=" ippcore"
+    IPP_TRAMPOLINE_LIST+=" ippcore"
 
     IPP_LIBS=""
     IPP_ARCHIVES=""
