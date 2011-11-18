@@ -167,7 +167,7 @@ AC_DEFUN([AG_GST_ARG_WITH_PACKAGE_NAME],
       esac
     ], 
     [
-      P=$1
+      P="$1"
       if test "x$P" = "x"
       then
         P=$PACKAGE_NAME

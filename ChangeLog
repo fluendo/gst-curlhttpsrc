@@ -1,7 +1,13 @@
+2011-11-18  Josep Torra  <josep@fluendo.com>
+
+	* m4/gst-args.m4:
+	Minor fix in the macro to avoid an error when there's spaces
+	in the package name.
+
 2011-10-06  Josep Torra  <josep@fluendo.com>
 
 	* m4/ipp.m4:
-  Fix build in Mac OSX.
+	Fix build in Mac OSX.
 
 2011-07-20  Josep Torra  <josep@fluendo.com>
 
