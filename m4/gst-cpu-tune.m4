@@ -37,15 +37,17 @@ AC_DEFUN([AG_GST_CPU_TUNE],
     [TUNE=no]) dnl Default value
      
   if test "x$TUNE" = xyes; then
+    NEW_FLAGS=""
     AC_MSG_NOTICE(Build will be tuned for Nokia N800)
     AS_COMPILER_FLAG(-march=armv6j, 
-      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -march=armv6j")
+      NEW_FLAGS="$NEW_FLAGS -march=armv6j")
     AS_COMPILER_FLAG(-mtune=arm1136j-s, 
-      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -mtune=arm1136j-s")
+      NEW_FLAGS="$NEW_FLAGS -mtune=arm1136j-s")
     dnl Some assembly code requires -fomit-frame-pointer
     AS_COMPILER_FLAG(-fomit-frame-pointer, 
-      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -fomit-frame-pointer")
-    CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $CPU_TUNE_CFLAGS"
+      NEW_FLAGS="$NEW_FLAGS -fomit-frame-pointer")
+    CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS $NEW_FLAGS"
+    CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $NEW_FLAGS"
   fi
   
   dnl tune build using softfp
@@ -56,14 +58,17 @@ AC_DEFUN([AG_GST_CPU_TUNE],
     [TUNE=no]) dnl Default value
      
   if test "x$TUNE" = xyes; then
+    NEW_FLAGS=""
     AS_COMPILER_FLAG(-mfloat-abi=softfp, 
-      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -mfloat-abi=softfp")
+      NEW_FLAGS="$NEW_FLAGS -mfloat-abi=softfp")
     AS_COMPILER_FLAG(-mfpu=vfp, 
-      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -mfpu=vfp")
-         
-    CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $CPU_TUNE_CFLAGS"
+      NEW_FLAGS="$NEW_FLAGS -mfpu=vfp")
+    CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS $NEW_FLAGS"
+    CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $NEW_FLAGS"
+    AC_DEFINE(USE_ARM_VFP, TRUE, [Build with ARM vfp optimizations])
   fi
-  
+  AM_CONDITIONAL(USE_ARM_VFP, test "x$TUNE" = "xyes")
+
   dnl tune build using arm/thumb
   AC_ARG_ENABLE(cpu-tune-thumb,
     AC_HELP_STRING([--enable-cpu-tune-thumb], 
