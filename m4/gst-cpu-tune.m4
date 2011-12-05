@@ -51,9 +51,9 @@ AC_DEFUN([AG_GST_CPU_TUNE],
   fi
   
   dnl tune build using softfp
-  AC_ARG_ENABLE(cpu-tune-softfp,
-    AC_HELP_STRING([--enable-cpu-tune-softfp], 
-      [enable build with softfp and vfp]),
+  AC_ARG_ENABLE(cpu-tune-vfp,
+    AC_HELP_STRING([--enable-cpu-tune-vfp], 
+      [enable build of arm VFP assembly code]),
     [TUNE=yes],
     [TUNE=no]) dnl Default value
      
@@ -65,7 +65,7 @@ AC_DEFUN([AG_GST_CPU_TUNE],
       NEW_FLAGS="$NEW_FLAGS -mfpu=vfp")
     CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS $NEW_FLAGS"
     CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $NEW_FLAGS"
-    AC_DEFINE(USE_ARM_VFP, TRUE, [Build with ARM vfp optimizations])
+    AC_DEFINE(USE_ARM_VFP, TRUE, [Build with arm VFP optimizations])
   fi
   AM_CONDITIONAL(USE_ARM_VFP, test "x$TUNE" = "xyes")
 
