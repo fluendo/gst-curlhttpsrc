@@ -1,3 +1,10 @@
+2012-01-20  Josep Torra  <josep@fluendo.com>
+
+	* m4/gst-error.m4:
+	When building with -Wall -Werror, disable error on deprecation
+	warnings. This is a workaround to build with new glib versions
+	that have deprecated the threading API.
+
 2011-12-05  Josep Torra  <josep@fluendo.com>
 
 	* m4/gst-cpu-tune.m4:
