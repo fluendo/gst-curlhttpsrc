@@ -1,3 +1,8 @@
+2012-02-23  Josep Torra  <josep@fluendo.com>
+
+	* m4/gst-cpu-tune.m4:
+	Add some more CPU tune configure flags for ARM.
+
 2012-01-20  Josep Torra  <josep@fluendo.com>
 
 	* m4/gst-error.m4:

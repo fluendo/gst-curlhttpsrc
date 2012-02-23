@@ -49,11 +49,57 @@ AC_DEFUN([AG_GST_CPU_TUNE],
     CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS $NEW_FLAGS"
     CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $NEW_FLAGS"
   fi
+
+  dnl tune build for ARM Cortex A8 cpus
+  AC_ARG_ENABLE(cpu-tune-cortex-a8,
+    AC_HELP_STRING([--enable-cpu-tune-cortex-a8], 
+      [enable CFLAGS/CCASFLAGS tuned for ARM Cortex A8]),
+    [TUNE=yes],
+    [TUNE=no]) dnl Default value
+     
+  if test "x$TUNE" = xyes; then
+    NEW_FLAGS=""
+    AC_MSG_NOTICE(Build will be tuned for ARM Cortex A8)
+    AS_COMPILER_FLAG(-mcpu=cortex-a8, [mcpu_a8=yes], [mcpu_a8=no])
+    if test "x$mcpu_a8" = xyes; then
+      NEW_FLAGS="$NEW_FLAGS -mcpu=cortex-a8"
+    else    
+      AS_COMPILER_FLAG(-march=armv7-a, 
+        NEW_FLAGS="$NEW_FLAGS -march=armv7-a")
+      AS_COMPILER_FLAG(-mtune=cortex-a8, 
+        NEW_FLAGS="$NEW_FLAGS -mtune=cortex-a8")
+    fi
+    CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS $NEW_FLAGS"
+    CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $NEW_FLAGS"
+  fi
+
+  dnl tune build for ARM Cortex A9 cpus
+  AC_ARG_ENABLE(cpu-tune-cortex-a9,
+    AC_HELP_STRING([--enable-cpu-tune-cortex-a9], 
+      [enable CFLAGS/CCASFLAGS tuned for ARM Cortex A9]),
+    [TUNE=yes],
+    [TUNE=no]) dnl Default value
+     
+  if test "x$TUNE" = xyes; then
+    NEW_FLAGS=""
+    AC_MSG_NOTICE(Build will be tuned for ARM Cortex A9)
+    AS_COMPILER_FLAG(-mcpu=cortex-a9, [mcpu_a9=yes], [mcpu_a9=no])
+    if test "x$mcpu_a9" = xyes; then
+      NEW_FLAGS="$NEW_FLAGS -mcpu=cortex-a9"
+    else    
+      AS_COMPILER_FLAG(-march=armv7-a, 
+        NEW_FLAGS="$NEW_FLAGS -march=armv7-a")
+      AS_COMPILER_FLAG(-mtune=cortex-a9, 
+        NEW_FLAGS="$NEW_FLAGS -mtune=cortex-a9")
+    fi
+    CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS $NEW_FLAGS"
+    CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $NEW_FLAGS"
+  fi
   
-  dnl tune build using softfp
+  dnl tune build using vfp+softfp
   AC_ARG_ENABLE(cpu-tune-vfp,
     AC_HELP_STRING([--enable-cpu-tune-vfp], 
-      [enable build of arm VFP assembly code]),
+      [enable build of ARM vfp optimizations]),
     [TUNE=yes],
     [TUNE=no]) dnl Default value
      
@@ -65,9 +111,35 @@ AC_DEFUN([AG_GST_CPU_TUNE],
       NEW_FLAGS="$NEW_FLAGS -mfpu=vfp")
     CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS $NEW_FLAGS"
     CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $NEW_FLAGS"
-    AC_DEFINE(USE_ARM_VFP, TRUE, [Build with arm VFP optimizations])
+    AC_DEFINE(USE_ARM_VFP, TRUE, [Build with ARM vfp optimizations])
   fi
   AM_CONDITIONAL(USE_ARM_VFP, test "x$TUNE" = "xyes")
+
+  dnl tune build using neon+softfp
+  AC_ARG_ENABLE(cpu-tune-neon,
+    AC_HELP_STRING([--enable-cpu-tune-neon], 
+      [enable build of with ARM neon optimizations]),
+    [TUNE=yes],
+    [TUNE=no]) dnl Default value
+     
+  if test "x$TUNE" = xyes; then
+    NEW_FLAGS=""
+    AS_COMPILER_FLAG(-mfloat-abi=softfp, 
+      NEW_FLAGS="$NEW_FLAGS -mfloat-abi=softfp")
+    AS_COMPILER_FLAG(-mfpu=neon, 
+      NEW_FLAGS="$NEW_FLAGS -mfpu=neon")
+    AS_COMPILER_FLAG(-ftree-vectorize, 
+      NEW_FLAGS="$NEW_FLAGS -ftree-vectorize")
+    AS_COMPILER_FLAG(-ffast-math, 
+      NEW_FLAGS="$NEW_FLAGS -ffast-math")
+    AS_COMPILER_FLAG(-fsingle-precision-constant, 
+      NEW_FLAGS="$NEW_FLAGS -fsingle-precision-constant")
+
+    CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS $NEW_FLAGS"
+    CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $NEW_FLAGS"
+    AC_DEFINE(USE_ARM_NEON, TRUE, [Build with ARM neon optimizations])
+  fi
+  AM_CONDITIONAL(USE_ARM_NEON, test "x$TUNE" = "xyes")
 
   dnl tune build using arm/thumb
   AC_ARG_ENABLE(cpu-tune-thumb,
