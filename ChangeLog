@@ -1,3 +1,10 @@
+2012-04-13  Josep Torra  <josep@fluendo.com>
+
+	* m4/ipp.m4:
+	Move the code related to IPP_FUNC_PATH definition to the AG_CHECK_IPP
+	macro.
+	It allows to build older releases using the trunk common.
+
 2012-02-23  Josep Torra  <josep@fluendo.com>
 
 	* m4/gst-cpu-tune.m4:

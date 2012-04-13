@@ -1,4 +1,6 @@
 dnl Detection of Intel Integrated Performance Primitives IPP
+dnl Usage: AG_CHEC_IPP([FUNCTION LIST PATH])
+dnl FUNCTION LIST PATH is an optional argument
 AC_DEFUN([AG_CHECK_IPP],
 [
   BUILD_IN_MACOS=false
@@ -91,6 +93,13 @@ AC_DEFUN([AG_CHECK_IPP],
   AM_CONDITIONAL(USE_IPP, test "x$HAVE_IPP" = "xtrue")
 
   if test "x$HAVE_IPP" = "xtrue"; then
+    if test -z $1; then
+      IPP_FUNC_PATH="src"
+    else
+      IPP_FUNC_PATH=$1
+    fi
+    AC_SUBST(IPP_FUNC_PATH)
+
     if test "x$BUILD_IN_MACOS" = "xtrue"; then
       IPP_PATH="${IPP_PREFIX}"
       IPP_INCLUDES="-I${IPP_PATH}/include"
@@ -115,10 +124,11 @@ AC_DEFUN([AG_CHECK_IPP],
 
 dnl Given a list of ipp libraries to link with, set the needed variables for building
 dnl Usage: AG_NEED_IPP([IPP LIBS], [FUNCTION LIST PATH])
+dnl FUNCTION LIST PATH is an optional argument
 AC_DEFUN([AG_NEED_IPP],
 [
   HAVE_IPP=false
-  AG_CHECK_IPP
+  AG_CHECK_IPP($2)
   if test "$HAVE_IPP" = "false"; then
     AC_MSG_WARN([Intel Performance Primitives not found in $IPP_PREFIX])
   else
@@ -164,12 +174,6 @@ AC_DEFUN([AG_NEED_IPP],
   AC_SUBST(IPP_LIBS)      dnl ldflags
   AC_SUBST(IPP_TRAMPOLINE_LIBS)      dnl ldflags
   AC_SUBST(IPP_ARCHIVES)  dnl to iterate
-  if test -z $2; then
-    IPP_FUNC_PATH="src"
-  else
-    IPP_FUNC_PATH=$2
-  fi
-  AC_SUBST(IPP_FUNC_PATH)
   AM_CONDITIONAL(USE_IPP, test "x$HAVE_IPP" = "xtrue")
 
   dnl Permit patching IPP library to avoid reallocation problems
