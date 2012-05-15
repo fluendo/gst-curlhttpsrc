@@ -1,5 +1,10 @@
 2012-05-15  Julien Moutte <julien@fluendo.com>
 
+	* gst-compat.h: Add some more macros.
+	* Makefile.am: Distribute the compat header.
+
+2012-05-15  Julien Moutte <julien@fluendo.com>
+
 	* gst-compat.h: Add header file for conditional compat definitions.
 	
 2012-04-13  Josep Torra  <josep@fluendo.com>
