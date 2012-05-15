@@ -6,6 +6,8 @@
 #ifndef GST_COMPAT_H
 #define GST_COMPAT_H
 
+#include <string.h>
+
 #include <gst/gst.h>
 #include <gst/base/gstadapter.h>
 
