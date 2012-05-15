@@ -7,6 +7,7 @@
 #define GST_COMPAT_H
 
 #include <gst/gst.h>
+#include <gst/base/gstadapter.h>
 
 #ifndef GST_CHECK_VERSION
 #define GST_CHECK_VERSION(major,minor,micro)  \
