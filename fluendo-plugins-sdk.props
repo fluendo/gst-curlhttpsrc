@@ -2,8 +2,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup>
-    <OutDir>$(GSTREAMER_SDK_ROOT_X86)\lib\gstreamer-0.10\fluendo</OutDir>
+  <PropertyGroup Condition="'$(Platform)'=='Win32'">
+    <OutDir>$(GSTREAMER_SDK_ROOT_X86)\lib\gstreamer-0.10\fluendo\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <OutDir>$(GSTREAMER_SDK_ROOT_X86_64)\lib\gstreamer-0.10\fluendo\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
