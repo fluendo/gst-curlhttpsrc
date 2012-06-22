@@ -46,6 +46,7 @@ AC_DEFUN([AG_GST_CPU_TUNE],
     dnl Some assembly code requires -fomit-frame-pointer
     AS_COMPILER_FLAG(-fomit-frame-pointer, 
       NEW_FLAGS="$NEW_FLAGS -fomit-frame-pointer")
+
     CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS $NEW_FLAGS"
     CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $NEW_FLAGS"
   fi
@@ -69,6 +70,7 @@ AC_DEFUN([AG_GST_CPU_TUNE],
       AS_COMPILER_FLAG(-mtune=cortex-a8, 
         NEW_FLAGS="$NEW_FLAGS -mtune=cortex-a8")
     fi
+
     CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS $NEW_FLAGS"
     CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $NEW_FLAGS"
   fi
@@ -92,6 +94,7 @@ AC_DEFUN([AG_GST_CPU_TUNE],
       AS_COMPILER_FLAG(-mtune=cortex-a9, 
         NEW_FLAGS="$NEW_FLAGS -mtune=cortex-a9")
     fi
+
     CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS $NEW_FLAGS"
     CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $NEW_FLAGS"
   fi
@@ -105,10 +108,13 @@ AC_DEFUN([AG_GST_CPU_TUNE],
      
   if test "x$TUNE" = xyes; then
     NEW_FLAGS=""
+    AS_COMPILER_FLAG(-marm, 
+      NEW_FLAGS="$NEW_FLAGS -marm")
     AS_COMPILER_FLAG(-mfloat-abi=softfp, 
       NEW_FLAGS="$NEW_FLAGS -mfloat-abi=softfp")
     AS_COMPILER_FLAG(-mfpu=vfp, 
       NEW_FLAGS="$NEW_FLAGS -mfpu=vfp")
+
     CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS $NEW_FLAGS"
     CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $NEW_FLAGS"
     AC_DEFINE(USE_ARM_VFP, TRUE, [Build with ARM vfp optimizations])
@@ -124,6 +130,8 @@ AC_DEFUN([AG_GST_CPU_TUNE],
      
   if test "x$TUNE" = xyes; then
     NEW_FLAGS=""
+    AS_COMPILER_FLAG(-marm, 
+      NEW_FLAGS="$NEW_FLAGS -marm")
     AS_COMPILER_FLAG(-mfloat-abi=softfp, 
       NEW_FLAGS="$NEW_FLAGS -mfloat-abi=softfp")
     AS_COMPILER_FLAG(-mfpu=neon, 
@@ -139,19 +147,35 @@ AC_DEFUN([AG_GST_CPU_TUNE],
     CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $NEW_FLAGS"
     AC_DEFINE(USE_ARM_NEON, TRUE, [Build with ARM neon optimizations])
   fi
-  AM_CONDITIONAL(USE_ARM_NEON, test "x$TUNE" = "xyes")
 
-  dnl tune build using arm/thumb
-  AC_ARG_ENABLE(cpu-tune-thumb,
-    AC_HELP_STRING([--enable-cpu-tune-thumb], 
-      [enable generation of thumb code for arm devices]),
+  dnl tune build using neon+hardfp
+  AC_ARG_ENABLE(cpu-tune-neon-hf,
+    AC_HELP_STRING([--enable-cpu-tune-neon-hf], 
+      [enable build of with ARM neon optimizations]),
     [TUNE=yes],
     [TUNE=no]) dnl Default value
      
   if test "x$TUNE" = xyes; then
-    AS_COMPILER_FLAG(-mthumb, 
-      CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS -mthumb")
+    NEW_FLAGS=""
+    AS_COMPILER_FLAG(-marm, 
+      NEW_FLAGS="$NEW_FLAGS -marm")
+    AS_COMPILER_FLAG(-mfloat-abi=hard, 
+      NEW_FLAGS="$NEW_FLAGS -mfloat-abi=hard")
+    AS_COMPILER_FLAG(-mfpu=neon, 
+      NEW_FLAGS="$NEW_FLAGS -mfpu=neon")
+    AS_COMPILER_FLAG(-ftree-vectorize, 
+      NEW_FLAGS="$NEW_FLAGS -ftree-vectorize")
+    AS_COMPILER_FLAG(-ffast-math, 
+      NEW_FLAGS="$NEW_FLAGS -ffast-math")
+    AS_COMPILER_FLAG(-fsingle-precision-constant, 
+      NEW_FLAGS="$NEW_FLAGS -fsingle-precision-constant")
+
+    CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS $NEW_FLAGS"
+    CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $NEW_FLAGS"
+    AC_DEFINE(USE_ARM_NEON, TRUE, [Build with ARM neon optimizations])
   fi
+
+  AM_CONDITIONAL(USE_ARM_NEON, test "x$TUNE" = "xyes")
 
   dnl tune build on Solaris with Sun Forte CC
   AC_CHECK_DECL([__SUNPRO_C], [SUNCC="yes"], [SUNCC="no"])

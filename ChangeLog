@@ -1,3 +1,8 @@
+2012-06-22  Josep Torra <josep@fluendo.com>
+
+	* m4/gst-cpu-tune.m4:
+	Tune ARM build some more.
+
 2012-05-15  Julien Moutte <julien@fluendo.com>
 
 	* gst-compat.h: Add base adapter header for some function replacement.
