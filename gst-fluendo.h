@@ -1,7 +1,18 @@
 #ifndef _INCLUDE_NOPIC_H_
 #define _INCLUDE_NOPIC_H_
 
-#ifdef ENABLE_STATIC_PLUGIN
+#if defined(GST_PLUGIN_BUILD_STATIC)
+/* FIXME: Use GST_PLUGIN_DEFINE2 everywhere when all plugins are ported */
+#if ENABLE_DEMO_PLUGIN
+#define FLUENDO_PLUGIN_DEFINE(major, minor, name, fun, desc, init, version, \
+  license,pkg,url) \
+  GST_PLUGIN_DEFINE2(major, minor, fun, desc " [Demo Version]", init, version, license, pkg, url)
+#else
+#define FLUENDO_PLUGIN_DEFINE(major, minor, name, fun, desc, init, version, \
+  license,pkg,url) \
+  GST_PLUGIN_DEFINE2(major, minor, fun, desc, init, version, license, pkg, url)
+#endif /* ENABLE_DEMO_PLUGIN */
+#elif defined(ENABLE_STATIC_PLUGIN)
 #if ENABLE_DEMO_PLUGIN
 #define FLUENDO_PLUGIN_DEFINE(major, minor, name, fun, desc, init, version, \
   license, pkg, url) \
