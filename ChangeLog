@@ -1,3 +1,8 @@
+2012-07-10  Andoni Morales Alastruey <amorales@fluendo.com>
+
+	* m4/ipp.m4:
+	Add support for MinGW builds in windows
+
 2012-06-22  Josep Torra <josep@fluendo.com>
 
 	* m4/gst-cpu-tune.m4:

@@ -4,13 +4,23 @@ dnl FUNCTION LIST PATH is an optional argument
 AC_DEFUN([AG_CHECK_IPP],
 [
   BUILD_IN_MACOS=false
+  BUILD_IN_UNIX=false
+  BUILD_IN_WINDOWS=false
   case "$host_os" in
     *darwin*)
       BUILD_IN_MACOS=true
       ;;
+    mingw*)
+      BUILD_IN_WINDOWS=true
+      ;;
+    linux* | solaris*)
+      BUILD_IN_UNIX=true
+      ;;
   esac
   AM_CONDITIONAL(BUILD_IN_MACOS, test "x$BUILD_IN_MACOS" = "xtrue")
-  
+  AM_CONDITIONAL(BUILD_IN_UNIX, test "x$BUILD_IN_UNIX" = "xtrue")
+  AM_CONDITIONAL(BUILD_IN_WINDOWS, test "x$BUILD_IN_WINDOWS" = "xtrue")
+
   dnl Setup for finding IPP libraries. Attempt to detect by default.
   test_ipp=true
   AC_MSG_CHECKING([for Intel Performance Primitives library])
@@ -53,7 +63,7 @@ AC_DEFUN([AG_CHECK_IPP],
   fi
  
   if test "x$test_ipp" = "xtrue"; then
-    if test "x$BUILD_IN_MACOS" = "xtrue"; then
+    if test "x$BUILD_IN_MACOS" = "xtrue" -o "x$BUILD_IN_WINDOWS" = "xtrue" ; then
       HAVE_IPP=false
       # Loop over IPP versions 
       for ver in $IPP_AVAIL; do
@@ -100,7 +110,7 @@ AC_DEFUN([AG_CHECK_IPP],
     fi
     AC_SUBST(IPP_FUNC_PATH)
 
-    if test "x$BUILD_IN_MACOS" = "xtrue"; then
+    if test "x$BUILD_IN_MACOS" = "xtrue" -o "x$BUILD_IN_WINDOWS" = "xtrue" ; then
       IPP_PATH="${IPP_PREFIX}"
       IPP_INCLUDES="-I${IPP_PATH}/include"
     else
@@ -135,7 +145,7 @@ AC_DEFUN([AG_NEED_IPP],
     NEED_LIST=$1
     IPP_TRAMPOLINE_LIST=""
     IPP_LIST=""
-    if test "x$BUILD_IN_MACOS" = "xtrue"; then
+    if test "x$BUILD_IN_MACOS" = "xtrue" -o "x$BUILD_IN_WINDOWS" = "xtrue" ; then
       IPP_LIST+=${NEED_LIST}
       IPP_SUFFIX="_l"
     else
@@ -144,6 +154,8 @@ AC_DEFUN([AG_NEED_IPP],
         IPP_TRAMPOLINE_LIST+="${lib}emerged "
       done
     fi
+
+
     dnl put ippcore at the end, when linking the symbols are not resolved recursively
     IPP_LIST+=" ippcore"
     IPP_TRAMPOLINE_LIST+=" ippcore"
@@ -168,6 +180,14 @@ AC_DEFUN([AG_NEED_IPP],
       IPP_LIBS+=" -lirc -liomp5" 
     fi  
 
+    if test "x$BUILD_IN_WINDOWS" = "xtrue" ; then
+        if test "x$host_cpu" = "xx86_64" ; then
+          IPP_CPU="em64t"
+        else
+          IPP_CPU="ia32"
+        fi
+        IPP_LIBS+=" -L${IPP_PREFIX}/${IPP_CPU}"
+    fi
   fi
   AC_SUBST(IPP_PATH)      dnl source directory
   AC_SUBST(IPP_INCLUDES)    dnl cflags
