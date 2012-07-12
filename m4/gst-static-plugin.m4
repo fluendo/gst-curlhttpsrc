@@ -34,7 +34,6 @@ AC_DEFUN([AG_GST_ARG_STATIC_PLUGINS],
   AC_MSG_RESULT([$enable_static_plugins])
   if test "x$enable_static_plugins" = xyes; then
     AC_ENABLE_STATIC(yes) dnl --enable-static
-    AC_ENABLE_SHARED(no) dnl --disable-shared
     AC_LIBTOOL_PICMODE(default) dnl --without-pic
     AC_DEFINE(GST_PLUGIN_BUILD_STATIC, 1,
       [Define if static plugins should be built])

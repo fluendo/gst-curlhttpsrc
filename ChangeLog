@@ -1,3 +1,8 @@
+2012-07-12  Andoni Morales Alastruey <amorales@fluendo.com>
+
+	* m4/gst-static-plugins.m4:
+	Revert --disable-shared for static plugins
+
 2012-07-11  Andoni Morales Alastruey <amorales@fluendo.com>
 
 	* m4/gst-static-plugins.m4:
