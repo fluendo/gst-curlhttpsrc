@@ -162,9 +162,8 @@ AC_DEFUN([AG_NEED_IPP],
     IPP_LIST=""
     if test "x$BUILD_IN_MACOS" = "xtrue" ; then
       IPP_LIST+=${NEED_LIST}
-      IPP_SUFFIX="_l"
+      IPP_SUFFIX+="_l"
     else
-      IPP_SUFFIX=""
       for lib in ${NEED_LIST}; do
         IPP_LIST+="${lib}merged "
         IPP_TRAMPOLINE_LIST+="${lib}emerged "
