@@ -48,7 +48,11 @@ AC_DEFUN([AG_CHECK_IPP],
   else
     if test "x$BUILD_IN_MACOS" = "xtrue"; then
       IPP_PREFIX="/Developer/opt/intel/ipp/"
-    else
+    fi
+    if test "x$BUILD_IN_WINDOWS" = "xtrue"; then
+      IPP_PREFIX="/c/Intel/IPP"
+    fi
+    if test "x$BUILD_IN_UNIX" = "xtrue"; then
       IPP_PREFIX="/opt/intel/ipp"
     fi
   fi
@@ -63,7 +67,7 @@ AC_DEFUN([AG_CHECK_IPP],
   fi
  
   if test "x$test_ipp" = "xtrue"; then
-    if test "x$BUILD_IN_MACOS" = "xtrue" -o "x$BUILD_IN_WINDOWS" = "xtrue" ; then
+    if test "x$BUILD_IN_MACOS" = "xtrue" ; then
       HAVE_IPP=false
       # Loop over IPP versions 
       for ver in $IPP_AVAIL; do
@@ -110,8 +114,12 @@ AC_DEFUN([AG_CHECK_IPP],
     fi
     AC_SUBST(IPP_FUNC_PATH)
 
-    if test "x$BUILD_IN_MACOS" = "xtrue" -o "x$BUILD_IN_WINDOWS" = "xtrue" ; then
+    if test "x$BUILD_IN_MACOS" = "xtrue"; then
       IPP_PATH="${IPP_PREFIX}"
+      IPP_INCLUDES="-I${IPP_PATH}/include"
+    fi
+    if test "x$BUILD_IN_WINDOWS" = "xtrue" ; then
+      IPP_PATH="${IPP_PREFIX}/${ver}/${IPP_CPU}"
       IPP_INCLUDES="-I${IPP_PATH}/include"
     else
       IPP_PATH="${IPP_PREFIX}/${ver}/${IPP_CPU}"
@@ -139,16 +147,24 @@ AC_DEFUN([AG_NEED_IPP],
 [
   HAVE_IPP=false
   AG_CHECK_IPP($2)
+  if test "x$BUILD_IN_WINDOWS" = "xtrue" ; then
+    AR_EXT=.lib
+    AR_PRE=
+  else
+    AR_EXT=.a
+    AR_PRE=lib
+  fi
   if test "$HAVE_IPP" = "false"; then
     AC_MSG_WARN([Intel Performance Primitives not found in $IPP_PREFIX])
   else
     NEED_LIST=$1
     IPP_TRAMPOLINE_LIST=""
     IPP_LIST=""
-    if test "x$BUILD_IN_MACOS" = "xtrue" -o "x$BUILD_IN_WINDOWS" = "xtrue" ; then
+    if test "x$BUILD_IN_MACOS" = "xtrue" ; then
       IPP_LIST+=${NEED_LIST}
       IPP_SUFFIX="_l"
     else
+      IPP_SUFFIX=""
       for lib in ${NEED_LIST}; do
         IPP_LIST+="${lib}merged "
         IPP_TRAMPOLINE_LIST+="${lib}emerged "
@@ -156,44 +172,62 @@ AC_DEFUN([AG_NEED_IPP],
     fi
 
 
+    if test "x$BUILD_IN_WINDOWS" = "xtrue" ; then
+      IPP_CORE="ippcorel"
+    else
+      IPP_CORE="ippcore"
+    fi
+
     dnl put ippcore at the end, when linking the symbols are not resolved recursively
-    IPP_LIST+=" ippcore"
-    IPP_TRAMPOLINE_LIST+=" ippcore"
+    IPP_LIST+=" ${IPP_CORE}"
+    IPP_TRAMPOLINE_LIST+=" ${IPP_CORE}"
 
     IPP_LIBS=""
     IPP_ARCHIVES=""
+    IPP_ARCHIVES_MINGW=""
+    IPP_LIBDIR="${IPP_PREFIX}/$ver/${IPP_CPU}/lib"
+
+    if test "x$THREAD_SAFE" = "xyes"; then
+      IPP_SUFFIX+="_t"
+    fi
 
     for lib in ${IPP_LIST}; do
-      if test "x$THREAD_SAFE" = "xyes"; then
-        IPP_LIBS+=" -l${lib}${IPP_SUFFIX}_t"
-        IPP_ARCHIVES+=" lib${lib}${IPP_SUFFIX}_t.a"
-      else
-        IPP_LIBS+=" -l${lib}${IPP_SUFFIX}"
-        IPP_ARCHIVES+=" lib${lib}${IPP_SUFFIX}.a"
-      fi
+      ARCHIVE="${AR_PRE}${lib}${IPP_SUFFIX}${AR_EXT}"
+      IPP_LIBS+=" -l${lib}${IPP_SUFFIX}"
+      IPP_ARCHIVES+=" ${ARCHIVE}"
+      IPP_ARCHIVES_MINGW+=" ${IPP_LIBDIR}/${ARCHIVE}.a"
     done
     for lib in ${IPP_TRAMPOLINE_LIST}; do
+      ARCHIVE="${AR_PRE}${lib}${IPP_SUFFIX}${AR_EXT}"
       IPP_TRAMPOLINE_LIBS+=" -l${lib}${IPP_SUFFIX}"
+      if test "x$BUILD_IN_WINDOWS" = "xtrue" ; then
+        IPP_LIBS+=" -l${lib}${IPP_SUFFIX}"
+        IPP_ARCHIVES+=" ${ARCHIVE}"
+        IPP_ARCHIVES_MINGW="${IPP_LIBDIR}/${ARCHIVE}.a ${IPP_ARCHIVES_MINGW}"
+      fi
     done
 
     if test "x$THREAD_SAFE" = "xyes"; then 
       IPP_LIBS+=" -lirc -liomp5" 
     fi  
 
-    if test "x$BUILD_IN_WINDOWS" = "xtrue" ; then
-        if test "x$host_cpu" = "xx86_64" ; then
-          IPP_CPU="em64t"
-        else
-          IPP_CPU="ia32"
-        fi
-        IPP_LIBS+=" -L${IPP_PREFIX}/${IPP_CPU}"
-    fi
+    IPP_LIBS+=" -L${IPP_LIBDIR}"
   fi
+
+  dnl IPP libs are compiled with the buffer security check leading to
+  dnl an unresolved symbol __security_check_cookie, which is provided
+  dnl by bufferoverflowU.lib. This library can be found in the Windows
+  dnl Driver Kit
+  if test "x$BUILD_IN_WINDOWS" = "xtrue" ; then
+    IPP_ARCHIVES_MINGW+=" ${IPP_LIBDIR}/bufferoverflowU.a"
+  fi
+
   AC_SUBST(IPP_PATH)      dnl source directory
   AC_SUBST(IPP_INCLUDES)    dnl cflags
   AC_SUBST(IPP_LIBS)      dnl ldflags
   AC_SUBST(IPP_TRAMPOLINE_LIBS)      dnl ldflags
   AC_SUBST(IPP_ARCHIVES)  dnl to iterate
+  AC_SUBST(IPP_ARCHIVES_MINGW)  dnl for mingw static linking
   AM_CONDITIONAL(USE_IPP, test "x$HAVE_IPP" = "xtrue")
 
   dnl Permit patching IPP library to avoid reallocation problems

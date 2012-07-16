@@ -1,3 +1,8 @@
+2012-07-16  Andoni Morales Alastruey <amorales@fluendo.com>
+
+	* m4/ipp.m4:
+	Add a better support for static builds on windows
+
 2012-07-12  Andoni Morales Alastruey <amorales@fluendo.com>
 
 	* m4/gst-static-plugins.m4:
