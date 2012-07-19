@@ -1,3 +1,8 @@
+2012-07-19  Andoni Morales Alastruey <amorales@fluendo.com>
+
+	* m4/ipp.m4:
+	Add a check for __int64 in windows
+
 2012-07-16  Andoni Morales Alastruey <amorales@fluendo.com>
 
 	* m4/ipp.m4:

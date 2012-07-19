@@ -135,6 +135,13 @@ AC_DEFUN([AG_CHECK_IPP],
     fi
   fi
 
+  dnl define missing __int64 type used in the ipp headers
+  if test "x$BUILD_IN_WINDOWS" = "xtrue"; then
+    AC_CHECK_TYPE([__int64],,
+      [AC_DEFINE_UNQUOTED([__int64], [long long],
+        [Define to `long long' if <sys/types.h> does not define.])])
+    IPP_PREFIX="/c/Intel/IPP"
+  fi
   dnl ippmerged needs to know wheter to link or not when building a static or dynamic library
   AM_CONDITIONAL(BUILD_STATIC, test "x$enable_static" = "xyes" -a "x$enable_shared" = "xno")
 
