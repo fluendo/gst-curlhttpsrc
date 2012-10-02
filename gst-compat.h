@@ -46,6 +46,7 @@ gst_adapter_take_buffer (GstAdapter * adapter, guint nbytes)
 
 #if !GST_CHECK_VERSION(0,10,7)
 #define GST_FLOW_CUSTOM_ERROR -100
+#define GST_FLOW_IS_SUCCESS(ret) ((ret) >= GST_FLOW_OK)
 #endif
 
 #if !GST_CHECK_VERSION(0,10,9)
