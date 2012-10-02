@@ -19,6 +19,10 @@
       GST_VERSION_MICRO >= (micro)))
 #endif
 
+#if !GST_CHECK_VERSION(0,10,4)
+#define GST_QUERY_TYPE_NAME(query) (gst_query_type_get_name(GST_QUERY_TYPE(query)))
+#endif
+
 #if !GST_CHECK_VERSION(0,10,6)
 static inline GstBuffer *
 gst_adapter_take_buffer (GstAdapter * adapter, guint nbytes)
@@ -38,6 +42,10 @@ gst_adapter_take_buffer (GstAdapter * adapter, guint nbytes)
 
   return buf;
 }
+#endif
+
+#if !GST_CHECK_VERSION(0,10,7)
+#define GST_FLOW_CUSTOM_ERROR -100
 #endif
 
 #if !GST_CHECK_VERSION(0,10,9)
