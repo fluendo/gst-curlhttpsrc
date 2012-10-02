@@ -54,6 +54,15 @@ gst_adapter_take_buffer (GstAdapter * adapter, guint nbytes)
     (GST_BUFFER_FLAG_IS_SET (buffer, GST_BUFFER_FLAG_DISCONT))
 #endif
 
+#if !GST_CHECK_VERSION(0,10,11)
+#define gst_message_new_buffering(elem,perc) \
+    gst_message_new_custom (GST_MESSAGE_BUFFERING,
+        (elem),
+        gst_structure_new ("GstMessageBuffering",
+            "buffer-percent", G_TYPE_INT, (perc), NULL)));
+
+#endif
+
 #if !GST_CHECK_VERSION(0,10,14)
 #define gst_element_class_set_details_simple(klass,longname,classification,description,author) \
     G_STMT_START{                                                             \
@@ -61,6 +70,11 @@ gst_adapter_take_buffer (GstAdapter * adapter, guint nbytes)
           GST_ELEMENT_DETAILS (longname,classification,description,author);   \
       gst_element_class_set_details (element_class, &details);                \
     }G_STMT_END
+#endif
+
+#if !GST_CHECK_VERSION(0,10,15)
+#define gst_structure_get_uint(stru,fn,fv) \
+    gst_structure_get_int(stru,fn,fv)
 #endif
 
 #if !GST_CHECK_VERSION(0,10,23)
