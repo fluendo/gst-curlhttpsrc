@@ -54,12 +54,42 @@ gst_adapter_take_buffer (GstAdapter * adapter, guint nbytes)
     (GST_BUFFER_FLAG_IS_SET (buffer, GST_BUFFER_FLAG_DISCONT))
 #endif
 
+#if !GST_CHECK_VERSION(0,10,10)
+static inline GstPad *
+gst_ghost_pad_new_from_template (const gchar * name, GstPad * target,
+    GstPadTemplate * templ)
+{
+  GstPad *ret;
+
+  g_return_val_if_fail (GST_IS_PAD (target), NULL);
+  g_return_val_if_fail (!gst_pad_is_linked (target), NULL);
+  g_return_val_if_fail (templ != NULL, NULL);
+  g_return_val_if_fail (GST_PAD_TEMPLATE_DIRECTION (templ) ==
+      GST_PAD_DIRECTION (target), NULL);
+
+  if ((ret = gst_ghost_pad_new_no_target (name, GST_PAD_DIRECTION (target)))) {
+    if (!gst_ghost_pad_set_target (GST_GHOST_PAD (ret), target))
+      goto set_target_failed;
+    g_object_set (ret, "template", templ, NULL);
+  }
+
+  return ret;
+
+  /* ERRORS */
+set_target_failed:
+  {
+    gst_object_unref (ret);
+    return NULL;
+  }
+}
+#endif
+
 #if !GST_CHECK_VERSION(0,10,11)
 #define gst_message_new_buffering(elem,perc) \
-    gst_message_new_custom (GST_MESSAGE_BUFFERING,
-        (elem),
-        gst_structure_new ("GstMessageBuffering",
-            "buffer-percent", G_TYPE_INT, (perc), NULL)));
+    gst_message_new_custom (GST_MESSAGE_BUFFERING,         \
+        (elem),                                            \
+        gst_structure_new ("GstMessageBuffering",          \
+            "buffer-percent", G_TYPE_INT, (perc), NULL))
 
 #endif
 
@@ -74,7 +104,7 @@ gst_adapter_take_buffer (GstAdapter * adapter, guint nbytes)
 
 #if !GST_CHECK_VERSION(0,10,15)
 #define gst_structure_get_uint(stru,fn,fv) \
-    gst_structure_get_int(stru,fn,fv)
+    gst_structure_get_int(stru,fn,(gint*)fv)
 #endif
 
 #if !GST_CHECK_VERSION(0,10,23)

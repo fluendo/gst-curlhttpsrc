@@ -10,6 +10,11 @@
 
 2012-10-02  Josep Torra  <josep@fluendo.com>
 
+	* gst-compat.h:
+	Add more backward compatibility bits.
+
+2012-10-02  Josep Torra  <josep@fluendo.com>
+
 	* gst-fluendo.h:
 	Avoid colision by redefinition on gst-compat.h.
 	Keept here to be able build older releases.
