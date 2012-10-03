@@ -1,3 +1,8 @@
+2012-10-03  Andoni Morales <amorales@fluendo.com>
+
+	* m4/gst-check.m4:
+	Define confitionals for makefiles and versions requirements
+
 2012-10-03  Andoni Morales  <amorales@fluendo.com>
 
 	* m4/gst-check.m4:

@@ -72,11 +72,14 @@ AC_DEFUN([AG_GST_DETECT_VERSION],
     [GST_REQ=1.0.0
      GST_MAJORMINOR=1.0],
     PKG_CHECK_MODULES(GST_VER_0_10, gstreamer-0.10 >= [$2],
-      [GST_REQ=0.10
-       GST_MAJORMINOR=0.10.3],
+      [GST_REQ=0.10.3
+       GST_MAJORMINOR=0.10],
       AC_MSG_ERROR([Could not find a valid version of gstreamer in the system])
     )
   )
+
+  AM_CONDITIONAL([GST_VER_1_0], [test "x$GST_MAJORMINOR" = "x1.0"])
+  AM_CONDITIONAL([GST_VER_0_10], [test "x$GST_MAJORMINOR" = "x0.10"])
 ]
 )
 
