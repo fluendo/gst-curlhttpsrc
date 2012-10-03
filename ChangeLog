@@ -1,3 +1,8 @@
+2012-10-03  Andoni Morales  <amorales@fluendo.com>
+
+	* m4/gst-check.m4:
+	Add new macro for testing the gstreamer version
+
 2012-10-03  Josep Torra  <josep@fluendo.com>
 
 	* gst-compat.h:

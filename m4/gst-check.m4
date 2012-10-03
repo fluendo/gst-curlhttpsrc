@@ -66,6 +66,20 @@ AC_DEFUN([AG_GST_CHECK_MODULES],
   dnl It gets done automatically in automake >= 1.7, which we now require
 ]))
 
+AC_DEFUN([AG_GST_DETECT_VERSION],
+[
+  PKG_CHECK_MODULES(GST_VER_1_0, gstreamer-1.0 >= [$1],
+    [GST_REQ=1.0.0
+     GST_MAJORMINOR=1.0],
+    PKG_CHECK_MODULES(GST_VER_0_10, gstreamer-0.10 >= [$2],
+      [GST_REQ=0.10
+       GST_MAJORMINOR=0.10.3],
+      AC_MSG_ERROR([Could not find a valid version of gstreamer in the system])
+    )
+  )
+]
+)
+
 AC_DEFUN([AG_GST_CHECK_GST],
 [
   AG_GST_CHECK_MODULES(GST, gstreamer-[$1], [$2], [GStreamer], [$3])
@@ -92,48 +106,50 @@ AC_DEFUN([AG_GST_CHECK_GST],
   fi
   AC_MSG_NOTICE([using GStreamer plug-ins in $GST_PLUGINS_DIR])
   AC_SUBST(GST_PLUGINS_DIR)
-  
-  dnl Check if gestreamer is 0.10.10 or newer, required to know for
-  dnl printf segment extension.
-  PKG_CHECK_MODULES(GST_10_10, gstreamer-0.10 >= 0.10.10,
-    POST_10_10=1, POST_10_10=0)
-  AC_DEFINE_UNQUOTED(POST_10_10, $POST_10_10,
-    [GStreamer version is >= 0.10.10])
 
-  PKG_CHECK_MODULES(GST_10_11, gstreamer-0.10 >= 0.10.11,
-    POST_10_11=1, POST_10_11=0)
-  AC_DEFINE_UNQUOTED(POST_10_11, $POST_10_11,	
-    [GStreamer version is >= 0.10.11])
+  if test "x$1" = "x0.10"; then
+    dnl Check if gestreamer is 0.10.10 or newer, required to know for
+    dnl printf segment extension.
+    PKG_CHECK_MODULES(GST_10_10, gstreamer-0.10 >= 0.10.10,
+      POST_10_10=1, POST_10_10=0)
+    AC_DEFINE_UNQUOTED(POST_10_10, $POST_10_10,
+      [GStreamer version is >= 0.10.10])
 
-  PKG_CHECK_MODULES(GST_10_12, gstreamer-0.10 >= 0.10.12,
-    POST_10_12=1, POST_10_12=0)
-  AC_DEFINE_UNQUOTED(POST_10_12, $POST_10_12,	
-    [GStreamer version is >= 0.10.12])
+    PKG_CHECK_MODULES(GST_10_11, gstreamer-0.10 >= 0.10.11,
+      POST_10_11=1, POST_10_11=0)
+    AC_DEFINE_UNQUOTED(POST_10_11, $POST_10_11,	
+      [GStreamer version is >= 0.10.11])
 
-  PKG_CHECK_MODULES(GST_10_13, gstreamer-0.10 >= 0.10.13,
-    POST_10_13=1, POST_10_13=0)
-  AC_DEFINE_UNQUOTED(POST_10_13, $POST_10_13,	
-    [GStreamer version is >= 0.10.13])
+    PKG_CHECK_MODULES(GST_10_12, gstreamer-0.10 >= 0.10.12,
+      POST_10_12=1, POST_10_12=0)
+    AC_DEFINE_UNQUOTED(POST_10_12, $POST_10_12,	
+      [GStreamer version is >= 0.10.12])
 
-  PKG_CHECK_MODULES(GST_10_14, gstreamer-0.10 >= 0.10.14,
-    POST_10_14=1, POST_10_14=0)
-  AC_DEFINE_UNQUOTED(POST_10_14, $POST_10_14,	
-    [GStreamer version is >= 0.10.14])
+    PKG_CHECK_MODULES(GST_10_13, gstreamer-0.10 >= 0.10.13,
+      POST_10_13=1, POST_10_13=0)
+    AC_DEFINE_UNQUOTED(POST_10_13, $POST_10_13,	
+      [GStreamer version is >= 0.10.13])
 
-  PKG_CHECK_MODULES(GST_10_21, gstreamer-0.10 >= 0.10.21,
-    POST_10_21=1, POST_10_21=0)
-  AC_DEFINE_UNQUOTED(POST_10_21, $POST_10_21,
-    [GStreamer version is >= 0.10.21])
+    PKG_CHECK_MODULES(GST_10_14, gstreamer-0.10 >= 0.10.14,
+      POST_10_14=1, POST_10_14=0)
+    AC_DEFINE_UNQUOTED(POST_10_14, $POST_10_14,	
+      [GStreamer version is >= 0.10.14])
 
-  PKG_CHECK_MODULES(GST_10_25, gstreamer-0.10 >= 0.10.25,
-    POST_10_25=1, POST_10_25=0)
-  AC_DEFINE_UNQUOTED(POST_10_25, $POST_10_25,
-    [GStreamer version is >= 0.10.25])
+    PKG_CHECK_MODULES(GST_10_21, gstreamer-0.10 >= 0.10.21,
+      POST_10_21=1, POST_10_21=0)
+    AC_DEFINE_UNQUOTED(POST_10_21, $POST_10_21,
+      [GStreamer version is >= 0.10.21])
 
-  PKG_CHECK_MODULES(GST_10_26, gstreamer-0.10 >= 0.10.26,
-    POST_10_26=1, POST_10_26=0)
-  AC_DEFINE_UNQUOTED(POST_10_26, $POST_10_26,
-    [GStreamer version is >= 0.10.26])
+    PKG_CHECK_MODULES(GST_10_25, gstreamer-0.10 >= 0.10.25,
+      POST_10_25=1, POST_10_25=0)
+    AC_DEFINE_UNQUOTED(POST_10_25, $POST_10_25,
+      [GStreamer version is >= 0.10.25])
+
+    PKG_CHECK_MODULES(GST_10_26, gstreamer-0.10 >= 0.10.26,
+      POST_10_26=1, POST_10_26=0)
+    AC_DEFINE_UNQUOTED(POST_10_26, $POST_10_26,
+      [GStreamer version is >= 0.10.26])
+  fi
 ])
 
 AC_DEFUN([AG_GST_CHECK_GST_BASE],
