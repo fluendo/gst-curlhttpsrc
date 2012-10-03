@@ -132,6 +132,7 @@ gstflu_pad_push (GstPad *src, GstBuffer *out_buf, GstFluStatistics *stats)
 
 #ifndef GST_COMPAT_H
 #ifndef POST_10_14
+#ifndef POST_1_0
 #define gst_element_class_set_details_simple( \
     klass, longname, classification, description, author) \
     { \
@@ -139,6 +140,7 @@ gstflu_pad_push (GstPad *src, GstBuffer *out_buf, GstFluStatistics *stats)
         longname, classification, description, author}; \
       gst_element_class_set_details (klass, &details); \
     }
+#endif
 #endif
 #endif
 

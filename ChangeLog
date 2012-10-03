@@ -1,5 +1,11 @@
 2012-10-03  Andoni Morales <amorales@fluendo.com>
 
+	* gst-fluendo.h:
+	* m4/gst-check.m4:
+	Fix includes for GST 1.0
+
+2012-10-03  Andoni Morales <amorales@fluendo.com>
+
 	* m4/gst-check.m4:
 	Define confitionals for makefiles and versions requirements
 

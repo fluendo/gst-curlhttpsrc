@@ -152,6 +152,11 @@ AC_DEFUN([AG_GST_CHECK_GST],
       POST_10_26=1, POST_10_26=0)
     AC_DEFINE_UNQUOTED(POST_10_26, $POST_10_26,
       [GStreamer version is >= 0.10.26])
+  else
+    PKG_CHECK_MODULES(GST_1_0, gstreamer-1.0 >= 1.0,
+      POST_1_0_0=1, POST_1_0_0=0)
+    AC_DEFINE_UNQUOTED(POST_1_0, $POST_1_0,
+      [GStreamer version is >= 1.0.0])
   fi
 ])
 
