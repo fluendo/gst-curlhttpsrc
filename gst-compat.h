@@ -116,6 +116,23 @@ set_target_failed:
 #define GST_MEMDUMP_OBJECT(_object, _title, _data, _length) while (0)
 #endif
 
+#if !GST_CHECK_VERSION(0,10,24)
+static inline void
+gst_object_ref_sink (gpointer object)
+{
+  g_return_if_fail (GST_IS_OBJECT (object));
+
+  GST_OBJECT_LOCK (object);
+  if (G_LIKELY (GST_OBJECT_IS_FLOATING (object))) {
+    GST_OBJECT_FLAG_UNSET (object, GST_OBJECT_FLOATING);
+    GST_OBJECT_UNLOCK (object);
+  } else {
+    GST_OBJECT_UNLOCK (object);
+    gst_object_ref (object);
+  }
+}
+#endif
+
 #if !GST_CHECK_VERSION(0,10,33)
 #define GST_BUFFER_FLAG_MEDIA4 GST_MINI_OBJECT_FLAG_RESERVED1
 #endif

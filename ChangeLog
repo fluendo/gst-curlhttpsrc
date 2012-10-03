@@ -1,3 +1,8 @@
+2012-10-03  Josep Torra  <josep@fluendo.com>
+
+	* gst-compat.h:
+	Add more backward compatibility bits.
+
 2012-10-02  Josep Torra  <josep@fluendo.com>
 
 	* gst-compat.h:
