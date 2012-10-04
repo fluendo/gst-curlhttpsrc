@@ -1,3 +1,8 @@
+2012-10-04  Josep Torra  <josep@fluendo.com>
+
+	* m4/gst-check.m4:
+	Minor fixes in the macros.
+
 2012-10-03  Andoni Morales <amorales@fluendo.com>
 
 	* gst-fluendo.h:
