@@ -1,5 +1,10 @@
 2012-10-04  Josep Torra  <josep@fluendo.com>
 
+	* gst-compat.h:
+	Add g_onece_enter/leave replacement bits for older GLib.
+
+2012-10-04  Josep Torra  <josep@fluendo.com>
+
 	* m4/gst-check.m4:
 	Minor fixes in the macros.
 

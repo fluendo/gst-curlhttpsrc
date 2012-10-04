@@ -11,6 +11,11 @@
 #include <gst/gst.h>
 #include <gst/base/gstadapter.h>
 
+#if !GLIB_CHECK_VERSION(2,14,0)
+#define g_once_init_enter(_token) (!(*(_token)))
+#define g_once_init_leave(_token,_value) (*(_token)=(_value))
+#endif
+
 #ifndef GST_CHECK_VERSION
 #define GST_CHECK_VERSION(major,minor,micro)  \
     (GST_VERSION_MAJOR > (major) || \
