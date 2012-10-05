@@ -1,3 +1,8 @@
+2012-10-05  Josep Torra  <josep@fluendo.com>
+
+	* m4/gst-check.m4:
+	Add macros to check for audio and video libraries. 
+
 2012-10-04  Josep Torra  <josep@fluendo.com>
 
 	* gst-compat.h:

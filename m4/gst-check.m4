@@ -170,12 +170,24 @@ AC_DEFUN([AG_GST_CHECK_GST_GDP],
   AG_GST_CHECK_MODULES(GST_GDP, gstreamer-dataprotocol-[$1], [$2],
     [GStreamer Data Protocol Library], [$3])
 ])
-  
+
 AC_DEFUN([AG_GST_CHECK_GST_CONTROLLER],
 [
   AG_GST_CHECK_MODULES(GST_CONTROLLER, gstreamer-controller-[$1], [$2],
     [GStreamer Controller Library], [$3])
 ])  
+
+AC_DEFUN([AG_GST_CHECK_GST_AUDIO],
+[
+  AG_GST_CHECK_MODULES(GST_AUDIO, gstreamer-audio-[$1], [$2],
+    [GStreamer Audio Library], [$3])
+])
+
+AC_DEFUN([AG_GST_CHECK_GST_VIDEO],
+[
+  AG_GST_CHECK_MODULES(GST_VIDEO, gstreamer-video-[$1], [$2],
+    [GStreamer Video Library], [$3])
+])
 
 AC_DEFUN([AG_GST_CHECK_GST_CHECK],
 [
