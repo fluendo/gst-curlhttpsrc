@@ -33,13 +33,23 @@
 #if ENABLE_DEMO_PLUGIN
 #define FLUENDO_PLUGIN_DEFINE(major, minor, name, fun, desc, init, version, \
   license,pkg,url) \
-  GST_PLUGIN_DEFINE(major, minor, name, desc " [Demo Version]", init, version, license, pkg, url)
+  GST_PLUGIN_DEFINE_WRAP(major, minor, name, fun, desc " [Demo Version]", init, version, license, pkg, url)
 #else
 #define FLUENDO_PLUGIN_DEFINE(major, minor, name, fun, desc, init, version, \
   license,pkg,url) \
-  GST_PLUGIN_DEFINE(major, minor, name, desc, init, version, license, pkg, url)
+  GST_PLUGIN_DEFINE_WRAP(major, minor, name, fun, desc, init, version, license, pkg, url)
 #endif /* ENABLE_DEMO_PLUGIN */
 #endif /* ENABLE_STATIC_PLUGIN */
+
+#if GST_CHECK_VERSION(1, 0, 0)
+#define GST_PLUGIN_DEFINE_WRAP(major, minor, name, fun, desc, init, version, \
+  license,pkg,url) \
+  GST_PLUGIN_DEFINE(major, minor, fun, desc, init, version, license, pkg, url)
+#else
+#define GST_PLUGIN_DEFINE_WRAP(major, minor, name, fun, desc, init, version, \
+  license,pkg,url) \
+  GST_PLUGIN_DEFINE(major, minor, name, desc, init, version, license, pkg, url)
+#endif
 
 #if ENABLE_DEMO_PLUGIN
 
