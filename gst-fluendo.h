@@ -41,7 +41,7 @@
 #endif /* ENABLE_DEMO_PLUGIN */
 #endif /* ENABLE_STATIC_PLUGIN */
 
-#if GST_CHECK_VERSION(1, 0, 0)
+#if (GST_VERSION_MAJOR == 1)
 #define GST_PLUGIN_DEFINE_WRAP(major, minor, name, fun, desc, init, version, \
   license,pkg,url) \
   GST_PLUGIN_DEFINE(major, minor, fun, desc, init, version, license, pkg, url)

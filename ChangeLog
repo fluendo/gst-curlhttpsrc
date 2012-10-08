@@ -1,5 +1,11 @@
 2012-10-03  Andoni Morales <amorales@fluendo.com>
 
+	* gst-fluendo.h:
+	Use GST_VERSION_MAJOR instead of GST_VERSION_CHECK, which is not
+	defined before 0.10.18
+
+2012-10-03  Andoni Morales <amorales@fluendo.com>
+
 	* m4/gst-fluendo.h:
 	Fix GST_PLUGIN_DEFINE for 1.0 where the plugin name is not a string anymore
 
