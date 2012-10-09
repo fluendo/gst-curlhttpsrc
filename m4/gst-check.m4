@@ -180,13 +180,27 @@ AC_DEFUN([AG_GST_CHECK_GST_CONTROLLER],
 AC_DEFUN([AG_GST_CHECK_GST_AUDIO],
 [
   AG_GST_CHECK_MODULES(GST_AUDIO, gstreamer-audio-[$1], [$2],
-    [GStreamer Audio Library], [$3])
+    [GStreamer Audio Library], no)
+  dnl package config files are only available since 0.10.16
+  if test "x$HAVE_GST_AUDIO" = "xno"; then
+    GST_AUDIO_CFLAGS=""
+    GST_AUDIO_LIBS="-lgstaudio-$GST_MAJORMINOR"
+    AC_SUBST(GST_AUDIO_CFLAGS)
+    AC_SUBST(GST_AUDIO_LIBS)
+  fi
 ])
 
 AC_DEFUN([AG_GST_CHECK_GST_VIDEO],
 [
   AG_GST_CHECK_MODULES(GST_VIDEO, gstreamer-video-[$1], [$2],
-    [GStreamer Video Library], [$3])
+    [GStreamer Video Library], no)
+  dnl package config files are only available since 0.10.16
+  if test "x$HAVE_GST_VIDEO" = "xno"; then
+    GST_VIDEO_CFLAGS=""
+    GST_VIDEO_LIBS="-lgstvideo-$GST_MAJORMINOR"
+    AC_SUBST(GST_VIDEO_CFLAGS)
+    AC_SUBST(GST_VIDEO_LIBS)
+  fi
 ])
 
 AC_DEFUN([AG_GST_CHECK_GST_CHECK],

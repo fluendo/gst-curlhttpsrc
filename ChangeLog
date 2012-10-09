@@ -1,3 +1,9 @@
+2012-10-09  Josep Torra  <josep@fluendo.com>
+
+	* m4/gst-check.m4:
+	Handle older GStreamer versions that doesn't provide .pc files
+	for audio/video libs.
+
 2012-10-03  Andoni Morales <amorales@fluendo.com>
 
 	* gst-fluendo.h:
