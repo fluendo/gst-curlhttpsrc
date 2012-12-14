@@ -103,7 +103,7 @@ set_target_failed:
     G_STMT_START{                                                             \
       static GstElementDetails details =                                      \
           GST_ELEMENT_DETAILS (longname,classification,description,author);   \
-      gst_element_class_set_details (element_class, &details);                \
+      gst_element_class_set_details (klass, &details);                        \
     }G_STMT_END
 #endif
 
