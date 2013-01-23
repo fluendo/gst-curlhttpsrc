@@ -142,4 +142,28 @@ gst_object_ref_sink (gpointer object)
 #define GST_BUFFER_FLAG_MEDIA4 GST_MINI_OBJECT_FLAG_RESERVED1
 #endif
 
+#if !GST_CHECK_VERSION (1,0,0)
+
+typedef struct {
+  guint8 * data;
+  gsize size;
+} GstMapInfo;
+
+typedef enum {
+  GST_MAP_READ = 1 << 0,
+  GST_MAP_WRITE = 1 << 1
+} GstMapFlags;
+
+static inline gboolean
+gst_buffer_map (GstBuffer * buffer, GstMapInfo * info, GstMapFlags flags)
+{
+  info->data = GST_BUFFER_DATA (buffer);
+  info->size = GST_BUFFER_SIZE (buffer);
+  return TRUE;
+}
+
+#define gst_buffer_unmap(buffer,info) while(0)
+#define gst_buffer_get_size(buffer) GST_BUFFER_SIZE((buffer))
+
+#endif
 #endif /* GST_COMPAT_H */

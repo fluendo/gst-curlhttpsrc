@@ -1,3 +1,8 @@
+2013-01-23  Josep Torra  <josep@fluendo.com>
+
+	* gst-compat.h:
+	Allow use gst_buffer_map/_unmap sintax in GStreamer 0.10.
+
 2013-01-22  Xavi Artigas  <xartigas@fluendo.com>
 
 	* m4/gst-gettext.m4:
