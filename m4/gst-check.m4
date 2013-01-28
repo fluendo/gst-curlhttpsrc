@@ -220,8 +220,7 @@ AC_DEFUN([AG_GST_CHECK_GST_PLUGINS_BASE],
   if test -z $GSTPB_PLUGINS_DIR; then
     GSTPB_PLUGINS_DIR=`$PKG_CONFIG --variable=pluginsdir gstreamer-plugins-base-[$1]`
     if test -z $GSTPB_PLUGINS_DIR; then
-      AC_MSG_ERROR(
-        [no pluginsdir set in GStreamer Base Plug-ins pkg-config file])
+      GSTPB_PLUGINS_DIR=${libdir}/gstreamer-${GST_MAJORMINOR}
     fi
   fi
   AC_MSG_NOTICE([using GStreamer Base Plug-ins in $GSTPB_PLUGINS_DIR])
