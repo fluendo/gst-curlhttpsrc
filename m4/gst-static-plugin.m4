@@ -26,11 +26,8 @@ AC_DEFUN([AG_GST_ARG_STATIC_PLUGINS],
     static-plugins,
     AC_HELP_STRING(
       [--enable-static-plugins],
-      [build static plugins @<:@default=no@:>@]),
-    [AS_CASE(
-      [$enableval], [no], [], [yes], [],
-      [AC_MSG_ERROR([bad value "$enableval" for --enable-static-plugins])])],
-    [enable_static_plugins=no])
+      [build static plugins @<:@default=no@:>@]),,
+      [enable_static_plugins=no])
   AC_MSG_RESULT([$enable_static_plugins])
   if test "x$enable_static_plugins" = xyes; then
     AC_ENABLE_STATIC(yes) dnl --enable-static
