@@ -1,3 +1,8 @@
+2013-02-07  Josep Torra  <josep@fluendo.com>
+
+	* gst-compat.h:
+	Add GST_FLOW_CUSTOM_SUCCESS definition for earlier GStreamer versions.
+
 2013-01-07  Andoni Morales Alastruey  <amorales@fluendo.com>
 
 	* m4/gst-static-plugin.m4:
