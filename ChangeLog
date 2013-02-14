@@ -1,3 +1,8 @@
+2013-02-14  Josep Torra  <josep@fluendo.com>
+
+	* m4/gst-cpu-tune.m4:
+	Add some more ARM tunning options.
+
 2013-02-07  Josep Torra  <josep@fluendo.com>
 
 	* gst-compat.h:
