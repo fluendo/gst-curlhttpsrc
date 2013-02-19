@@ -1,6 +1,11 @@
 2013-02-18  Andoni Morales Alastruey  <amorales@fluendo.com>
 
 	* ipp_mingw.py:
+	More this script to a better place
+
+2013-02-18  Andoni Morales Alastruey  <amorales@fluendo.com>
+
+	* ipp_mingw.py:
 	Add script to install IPP's for mingw and cerbero
 
 2013-02-14  Josep Torra  <josep@fluendo.com>
