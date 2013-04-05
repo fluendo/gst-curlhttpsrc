@@ -1,3 +1,12 @@
+2013-04-05  Jorge Zapata <jzapata@fluendo.com>
+
+	* gst-demo.h:
+	* gst-fluendo.h:
+	Initial approach for demo support on GStreamer 1.0
+	Split the demo code from the gst-fluendo.h header
+	Older demo macros do not provide the demo functionality anymore but
+	projects using it can still compile
+
 2013-02-18  Andoni Morales Alastruey  <amorales@fluendo.com>
 
 	* ipp_mingw.py:
