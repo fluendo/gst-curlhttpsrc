@@ -1,3 +1,8 @@
+2013-04-09  Jorge Zapata  <jzapata@fluendo.com>
+
+	* gst-demo.h:
+	Add video decoders specific demo functions
+
 2013-04-05  Jorge Zapata <jzapata@fluendo.com>
 
 	* gst-demo.h:

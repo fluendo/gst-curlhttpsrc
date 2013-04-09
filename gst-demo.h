@@ -1,6 +1,10 @@
 #ifndef _GST_DEMO_H_
 #define _GST_DEMO_H_
 
+#ifdef POST_1_0
+#include <gst/video/gstvideodecoder.h>
+#endif
+
 typedef struct _GstFluDemoStatistics {
   gint64 max_duration;
   gint64 decoded_duration;
@@ -117,5 +121,42 @@ gstflu_demo_check_audio_buffer (GstFluDemoStatistics * stats, GstPad * sink,
   return GST_FLOW_OK;
 #endif
 }
+
+#ifdef POST_1_0
+static inline GstFlowReturn
+gstflu_demo_check_video_frame (GstFluDemoStatistics * stats,
+    GstPad * sink, GstPad * src, GstVideoCodecFrame * frame)
+{
+#if ENABLE_DEMO_PLUGIN
+  GstFlowReturn ret;
+
+  /* we need to pass a ref on the buffer because on error the buffer
+   * is unreffed
+   */
+  ret = gstflu_demo_check_buffer (stats, sink, src,
+      gst_buffer_ref (frame->output_buffer), frame->duration);
+  if (ret == GST_FLOW_OK)
+    gst_buffer_unref (frame->output_buffer);
+  return ret;
+#else
+  return GST_FLOW_OK;
+#endif
+}
+
+static inline GstFlowReturn
+gstflu_demo_check_video_decoder_frame (GstFluDemoStatistics * stats,
+    GstVideoDecoder * dec, GstVideoCodecFrame * frame)
+{
+#if ENABLE_DEMO_PLUGIN
+
+  return gstflu_demo_check_video_frame (stats,
+      GST_VIDEO_DECODER_SINK_PAD (dec),
+      GST_VIDEO_DECODER_SRC_PAD (dec),
+      frame);
+#else
+  return GST_FLOW_OK;
+#endif
+}
+#endif
 
 #endif
