@@ -2,6 +2,7 @@
 #define _GST_DEMO_H_
 
 #ifdef POST_1_0
+#include <gst/audio/gstaudiodecoder.h>
 #include <gst/video/gstvideodecoder.h>
 #endif
 
@@ -58,7 +59,7 @@ p_out:
 
 static inline GstFlowReturn
 gstflu_demo_check_buffer (GstFluDemoStatistics * stats, GstPad * sink,
-    GstPad * src, GstBuffer * buf, GstClockTime duration)
+    GstPad * src, GstClockTime duration)
 {
 #if ENABLE_DEMO_PLUGIN
   GstElement *element;
@@ -85,7 +86,6 @@ gstflu_demo_check_buffer (GstFluDemoStatistics * stats, GstPad * sink,
          " product please contact sales@fluendo.com."),
          (NULL));
     gst_object_unref (element);
-    gst_buffer_unref (buf);
     return GST_FLOW_ERROR;
   } else {
     gst_object_unref (element);
@@ -97,11 +97,24 @@ gstflu_demo_check_buffer (GstFluDemoStatistics * stats, GstPad * sink,
 }
 
 static inline GstFlowReturn
+gstflu_demo_push_buffer (GstFluDemoStatistics * stats, GstPad * sink,
+    GstPad * src, GstBuffer * buf)
+{
+  GstFlowReturn ret;
+  if ((ret = gstflu_demo_check_buffer (stats, sink, src,
+    GST_BUFFER_DURATION (buf))) != GST_FLOW_OK)
+    gst_buffer_unref (buf);
+  else
+    ret = gst_pad_push (src, buf);
+  return ret;
+}
+
+static inline GstFlowReturn
 gstflu_demo_check_video_buffer (GstFluDemoStatistics * stats, GstPad * sink,
-    GstPad * src, GstBuffer * buf, gint fps_n, gint fps_d)
+    GstPad * src, gint fps_n, gint fps_d)
 {
 #if ENABLE_DEMO_PLUGIN
-  return gstflu_demo_check_buffer (stats, sink, src, buf, gst_util_uint64_scale_int (fps_d, GST_SECOND, fps_n));
+  return gstflu_demo_check_buffer (stats, sink, src, gst_util_uint64_scale_int (fps_d, GST_SECOND, fps_n));
 #else
   return GST_FLOW_OK;
 #endif
@@ -109,13 +122,12 @@ gstflu_demo_check_video_buffer (GstFluDemoStatistics * stats, GstPad * sink,
 
 static inline GstFlowReturn
 gstflu_demo_check_audio_buffer (GstFluDemoStatistics * stats, GstPad * sink,
-    GstPad * src, GstBuffer * buf, gint rate, gint channels, gint width)
+    GstPad * src, gsize size, gint rate, gint channels, gint width)
 {
 #if ENABLE_DEMO_PLUGIN
   gint bs = channels * rate * (width >> 3);
-  gsize size = gst_buffer_get_size (buf);
 
-  return gstflu_demo_check_buffer (stats, sink, src, buf,
+  return gstflu_demo_check_buffer (stats, sink, src,
       gst_util_uint64_scale_int (size, GST_SECOND, bs));
 #else
   return GST_FLOW_OK;
@@ -124,20 +136,30 @@ gstflu_demo_check_audio_buffer (GstFluDemoStatistics * stats, GstPad * sink,
 
 #ifdef POST_1_0
 static inline GstFlowReturn
+gstflu_demo_finish_audio_decoder_buffer (GstFluDemoStatistics * stats,
+    GstAudioDecoder * dec, GstBuffer *buf, gint frames)
+{
+  GstFlowReturn ret;
+  GstAudioInfo *info;
+
+  info = gst_audio_decoder_get_audio_info (dec);
+  if ((ret = gstflu_demo_check_audio_buffer (stats,
+      GST_AUDIO_DECODER_SINK_PAD (dec), GST_AUDIO_DECODER_SRC_PAD (dec),
+      gst_buffer_get_size (buf), GST_AUDIO_INFO_RATE (info),
+      GST_AUDIO_INFO_CHANNELS (info), GST_AUDIO_INFO_DEPTH (info))
+       == GST_FLOW_OK))
+    ret = gst_audio_decoder_finish_frame (dec, buf, frames);
+  else
+    gst_buffer_unref (buf);
+  return ret;
+}
+
+static inline GstFlowReturn
 gstflu_demo_check_video_frame (GstFluDemoStatistics * stats,
     GstPad * sink, GstPad * src, GstVideoCodecFrame * frame)
 {
 #if ENABLE_DEMO_PLUGIN
-  GstFlowReturn ret;
-
-  /* we need to pass a ref on the buffer because on error the buffer
-   * is unreffed
-   */
-  ret = gstflu_demo_check_buffer (stats, sink, src,
-      gst_buffer_ref (frame->output_buffer), frame->duration);
-  if (ret == GST_FLOW_OK)
-    gst_buffer_unref (frame->output_buffer);
-  return ret;
+  return gstflu_demo_check_buffer (stats, sink, src, frame->duration);
 #else
   return GST_FLOW_OK;
 #endif
@@ -148,7 +170,6 @@ gstflu_demo_check_video_decoder_frame (GstFluDemoStatistics * stats,
     GstVideoDecoder * dec, GstVideoCodecFrame * frame)
 {
 #if ENABLE_DEMO_PLUGIN
-
   return gstflu_demo_check_video_frame (stats,
       GST_VIDEO_DECODER_SINK_PAD (dec),
       GST_VIDEO_DECODER_SRC_PAD (dec),
@@ -157,6 +178,21 @@ gstflu_demo_check_video_decoder_frame (GstFluDemoStatistics * stats,
   return GST_FLOW_OK;
 #endif
 }
+
+static inline GstFlowReturn
+gstflu_demo_finish_video_decoder_frame (GstFluDemoStatistics * stats,
+    GstVideoDecoder * dec, GstVideoCodecFrame * frame)
+{
+  GstFlowReturn ret;
+
+  if ((ret = gstflu_demo_check_video_decoder_frame (stats, dec, frame)
+       == GST_FLOW_OK))
+    ret = gst_video_decoder_finish_frame (dec, frame);
+  else
+    gst_video_decoder_drop_frame (dec, frame);
+  return ret;
+}
+
 #endif
 
 #endif
