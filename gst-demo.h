@@ -14,6 +14,7 @@ typedef struct _GstFluDemoStatistics {
 static inline void
 gstflu_demo_reset_statistics (GstFluDemoStatistics * stats)
 {
+  /* 30 seconds in case we can't figure out the duration of the clip */
   stats->max_duration = GST_SECOND * 30;
   stats->decoded_duration = GST_CLOCK_TIME_NONE;
 }
@@ -43,16 +44,14 @@ gstflu_demo_setup_statistics (GstFluDemoStatistics * stats, GstPad * sink)
   GstFormat fmt;
   gint64 duration;
 
-  /* 30 seconds in case we can't figure out the duration of the clip */
-  stats->max_duration = GST_SECOND * 30;
-  stats->decoded_duration = 0;
+  gstflu_demo_reset_statistics (stats);
 
   if (!sink)
-    return;
+    goto done;
 
   peer = gst_pad_get_peer (sink);
   if (!peer)
-    return;
+    goto done;
 
   q = gst_query_new_duration (GST_FORMAT_TIME);
   if (!q) goto p_out;
@@ -69,6 +68,8 @@ q_out:
   gst_query_unref (q);
 p_out:
   gst_object_unref (peer);
+done:
+  stats->decoded_duration = 0;
 }
 
 static inline GstFlowReturn

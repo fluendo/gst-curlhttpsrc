@@ -1,6 +1,12 @@
 2013-04-10  Jorge Zapata  <jzapata@fluendo.com>
 
 	* gst-demo.h:
+	when setting up the statistics be sure to reset them first
+	Initialize the decoded time to zero after getting the real duration
+
+2013-04-10  Jorge Zapata  <jzapata@fluendo.com>
+
+	* gst-demo.h:
 	Split some functions to ease the demo developing on elements that are not decoders
 
 2013-04-09  Jorge Zapata  <jzapata@fluendo.com>
