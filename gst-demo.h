@@ -19,6 +19,23 @@ gstflu_demo_reset_statistics (GstFluDemoStatistics * stats)
 }
 
 static inline void
+gstflu_demo_validate_duration (GstFluDemoStatistics * stats, gint64 duration)
+{
+#if ENABLE_DEMO_PLUGIN
+  if (!GST_CLOCK_TIME_IS_VALID (stats->decoded_duration)) {
+    stats->max_duration = gst_util_uint64_scale_int (duration, DEMO_PERCENT, 100);
+    /* max 30 minutes */
+    if (stats->max_duration > (GST_SECOND * 60 * 30))
+      stats->max_duration = GST_SECOND * 60 * 30;
+    /* min 3 minutes */
+    else if (stats->max_duration < (GST_SECOND * 60 * 3))
+      stats->max_duration = GST_SECOND * 60 * 3;
+    stats->decoded_duration = 0;
+  }
+#endif
+}
+
+static inline void
 gstflu_demo_setup_statistics (GstFluDemoStatistics * stats, GstPad * sink)
 {
   GstQuery *q;
@@ -29,8 +46,11 @@ gstflu_demo_setup_statistics (GstFluDemoStatistics * stats, GstPad * sink)
   /* 30 seconds in case we can't figure out the duration of the clip */
   stats->max_duration = GST_SECOND * 30;
   stats->decoded_duration = 0;
-  peer = gst_pad_get_peer (sink);
 
+  if (!sink)
+    return;
+
+  peer = gst_pad_get_peer (sink);
   if (!peer)
     return;
 
@@ -42,13 +62,7 @@ gstflu_demo_setup_statistics (GstFluDemoStatistics * stats, GstPad * sink)
 
   gst_query_parse_duration (q, &fmt, &duration);
   if (fmt == GST_FORMAT_TIME && GST_CLOCK_TIME_IS_VALID (duration)) {
-    stats->max_duration = gst_util_uint64_scale_int (duration, DEMO_PERCENT, 100);
-    /* max 30 minutes */
-    if (stats->max_duration > (GST_SECOND * 60 * 30))
-      stats->max_duration = GST_SECOND * 60 * 30;
-    /* min 3 minutes */
-    else if (stats->max_duration < (GST_SECOND * 60 * 3))
-      stats->max_duration = GST_SECOND * 60 * 3;
+    gstflu_demo_validate_duration (stats, duration);
   }
 
 q_out:

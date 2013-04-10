@@ -1,3 +1,8 @@
+2013-04-10  Jorge Zapata  <jzapata@fluendo.com>
+
+	* gst-demo.h:
+	Split some functions to ease the demo developing on elements that are not decoders
+
 2013-04-09  Jorge Zapata  <jzapata@fluendo.com>
 
 	* gst-demo.h:
