@@ -1,3 +1,9 @@
+2013-04-18  Julien Moutte <julien@fluendo.com>
+
+	* Makefile.am: Properly include gst-demo.h in tarballs.
+	* gst-demo.h: Make the default demo duration 3 minutes in case we 
+	can't find the duration to be consistent.
+
 2013-04-10  Jorge Zapata  <jzapata@fluendo.com>
 
 	* gst-demo.h:

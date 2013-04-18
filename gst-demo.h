@@ -14,8 +14,8 @@ typedef struct _GstFluDemoStatistics {
 static inline void
 gstflu_demo_reset_statistics (GstFluDemoStatistics * stats)
 {
-  /* 30 seconds in case we can't figure out the duration of the clip */
-  stats->max_duration = GST_SECOND * 30;
+  /* 3 minutes case we can't figure out the duration of the clip */
+  stats->max_duration = GST_SECOND * 60 * 3;
   stats->decoded_duration = GST_CLOCK_TIME_NONE;
 }
 
