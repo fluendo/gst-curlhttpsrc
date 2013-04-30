@@ -1,3 +1,8 @@
+2013-04-30  Andoni Morales Alastruey  <amorales@fluendo.com>
+
+	* m4/gst-cpu-tune.m4:
+	Fix build of dll's in Windows
+
 2013-04-18  Julien Moutte <julien@fluendo.com>
 
 	* Makefile.am: Properly include gst-demo.h in tarballs.

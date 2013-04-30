@@ -245,7 +245,14 @@ AC_DEFUN([AG_GST_CPU_TUNE],
         [CPU_TUNE_LDFLAGS="$CPU_TUNE_LDFLAGS -Wl,-znoexecstack"])
       ;;
   esac
-      
+
+  dnl libtool requires -no-udefined to build a DLL in windows
+  case "$host" in
+    *mingw*)
+      CPU_TUNE_LDFLAGS=$CPU_TUNE_LDFLAGS -Wl,-no-undefined"
+      ;;
+  esac
+
   AC_SUBST(CPU_TUNE_CFLAGS)
   AC_SUBST(CPU_TUNE_CCASFLAGS)
   AC_SUBST(CPU_TUNE_LDFLAGS)
