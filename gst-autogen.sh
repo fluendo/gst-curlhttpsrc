@@ -260,6 +260,11 @@ autogen_options ()
           echo "to pass options to configure, put them as arguments after -- "
 	  exit 1
           ;;
+      --host=*)
+	  CONFIGURE_EXT_OPT="$CONFIGURE_EXT_OPT --host=$optarg"
+	  echo "+ passing --host=$optarg to configure"
+          shift
+          ;;
       --with-automake=*)
           AUTOMAKE=$optarg
           echo "+ using alternate automake in $optarg"

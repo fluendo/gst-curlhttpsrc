@@ -1,3 +1,8 @@
+2013-05-22  Jorge Zapata  <jzapata@fluendo.com>
+
+	* gst-autogen.sh:
+	Accept --host as a valid argument to be provided to configure.
+
 2013-04-30  Andoni Morales Alastruey  <amorales@fluendo.com>
 
 	* m4/gst-cpu-tune.m4:
