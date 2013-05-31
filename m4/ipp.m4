@@ -6,6 +6,7 @@ AC_DEFUN([AG_CHECK_IPP],
   BUILD_IN_MACOS=false
   BUILD_IN_UNIX=false
   BUILD_IN_WINDOWS=false
+  BUILD_IPP_MERGED=false
   case "$host_os" in
     *darwin*)
       BUILD_IN_MACOS=true
@@ -15,6 +16,7 @@ AC_DEFUN([AG_CHECK_IPP],
       ;;
     linux* | solaris*)
       BUILD_IN_UNIX=true
+      BUILD_IPP_MERGED=true
       ;;
   esac
   AM_CONDITIONAL(BUILD_IN_MACOS, test "x$BUILD_IN_MACOS" = "xtrue")
@@ -110,7 +112,7 @@ AC_DEFUN([AG_CHECK_IPP],
     IPP_PATH="${IPP_PREFIX}"
     IPP_INCLUDES="-I${IPP_PATH}/include"
 
-    if test "x$BUILD_IN_WINDOWS" = "xfalse" ; then
+    if test "x$BUILD_IPP_MERGED" = "xtrue" ; then
       AC_DEFINE(USE_IPP_MERGED, TRUE, [Define whether USE_IPP_MERGED could be used])
     fi
     AC_MSG_RESULT([yes])

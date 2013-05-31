@@ -1,6 +1,11 @@
 2013-05-31  Josep Torra  <josep@fluendo.com>
 
 	* m4/ipp.m4:
+	Clarify that IPP Merged is only for Linux and Solaris.
+
+2013-05-31  Josep Torra  <josep@fluendo.com>
+
+	* m4/ipp.m4:
 	Rework on the IPP related macros.
 
 2013-05-22  Jorge Zapata  <jzapata@fluendo.com>
