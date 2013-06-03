@@ -1,3 +1,8 @@
+2013-06-03  Josep Torra  <josep@fluendo.com>
+
+	* m4/gst-error.m4:
+	Instead of disable deprecation warning just disable glib deprecations.
+
 2013-05-31  Josep Torra  <josep@fluendo.com>
 
 	* m4/ipp.m4:

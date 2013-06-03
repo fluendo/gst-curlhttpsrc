@@ -55,8 +55,8 @@ AC_DEFUN([AG_GST_SET_ERROR_CFLAGS],
     else
       dnl Due the glib threading API changes there's a lot of deprecation warnings on stuff like
       dnl GST_PAD_STREAM_LOCK and some other owned mutex/cond/thread stuff.
-      dnl We can just disable the deprecation warning as error to make build in new glib less traumatic.
-      AS_COMPILER_FLAG(-Wno-error=deprecated-declarations, ERROR_CFLAGS="$ERROR_CFLAGS -Wno-error=deprecated-declarations")
+      dnl We can just disable the deprecation checks to make build in new glib less traumatic.
+      ERROR_CFLAGS="$ERROR_CFLAGS -DGLIB_DISABLE_DEPRECATION_WARNINGS"
     fi
   fi
 
