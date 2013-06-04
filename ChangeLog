@@ -1,5 +1,11 @@
 2013-06-04  Josep Torra  <josep@fluendo.com>
 
+	* gst-fluendo.h:
+	* m4/gst-static-plugin.m4:
+	Simplify support code for builing static plugins.
+
+2013-06-04  Josep Torra  <josep@fluendo.com>
+
 	* m4/gst-check.m4:
 	Allow to specify the GStreamer API version with the '--with-gstreamer-api'
 	configure flag.
