@@ -68,15 +68,38 @@ AC_DEFUN([AG_GST_CHECK_MODULES],
 
 AC_DEFUN([AG_GST_DETECT_VERSION],
 [
-  PKG_CHECK_MODULES(GST_VER_1_0, gstreamer-1.0 >= [$1],
-    [GST_REQ=[$1]
-     GST_MAJORMINOR=1.0],
-    [PKG_CHECK_MODULES(GST_VER_0_10, gstreamer-0.10 >= [$2],
-      [GST_REQ=[$2]
-       GST_MAJORMINOR=0.10],
-      AC_MSG_ERROR([Could not find a valid version of gstreamer in the system])
-    )]
-  )
+  AC_ARG_WITH(gstreamer-api,
+     AC_HELP_STRING([--with-gstreamer-api],
+         [manually set the gstreamer API version 0.10 or 1.0 are valid values]),
+         [USE_GSTREAMER_API="${withval}"])
+
+  case "$USE_GSTREAMER_API" in
+    1.0)
+      PKG_CHECK_MODULES(GST_VER_1_0, gstreamer-1.0 >= [$1],
+        [GST_REQ=[$1]
+         GST_MAJORMINOR=1.0],
+         AC_MSG_ERROR([Could not find gstreamer 1.0 in the system])
+      )
+    ;;
+    0.10)
+      PKG_CHECK_MODULES(GST_VER_0_10, gstreamer-0.10 >= [$2],
+        [GST_REQ=[$2]
+         GST_MAJORMINOR=0.10],
+         AC_MSG_ERROR([Could not find gstreamer 0.10 in the system])
+      )
+    ;;
+    *)
+      PKG_CHECK_MODULES(GST_VER_1_0, gstreamer-1.0 >= [$1],
+        [GST_REQ=[$1]
+         GST_MAJORMINOR=1.0],
+        [PKG_CHECK_MODULES(GST_VER_0_10, gstreamer-0.10 >= [$2],
+          [GST_REQ=[$2]
+           GST_MAJORMINOR=0.10],
+          AC_MSG_ERROR([Could not find a valid version of gstreamer in the system])
+        )]
+      )
+    ;;
+  esac
 
   AM_CONDITIONAL([GST_VER_1_0], [test "x$GST_MAJORMINOR" = "x1.0"])
   AM_CONDITIONAL([GST_VER_0_10], [test "x$GST_MAJORMINOR" = "x0.10"])
