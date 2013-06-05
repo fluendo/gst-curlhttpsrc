@@ -1,5 +1,10 @@
 2013-06-04  Andoni Morales  <amorales@fluendo.com>
 
+	* m4/ipp.m4:
+	Fix IPP_PREFIX in windows
+
+2013-06-04  Andoni Morales  <amorales@fluendo.com>
+
 	* m4/gst-static-plugin.m4:
 	Fix typo
 
