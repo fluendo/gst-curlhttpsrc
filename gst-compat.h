@@ -164,7 +164,7 @@ gst_buffer_map (GstBuffer * buffer, GstMapInfo * info, GstMapFlags flags)
 }
 
 #define gst_buffer_unmap(buffer,info) while(0)
-#define gst_buffer_get_size(buffer) GST_BUFFER_SIZE((buffer))
+#define gst_buffer_get_size(buffer) ((gsize) GST_BUFFER_SIZE((buffer)))
 
 #endif
 #endif /* GST_COMPAT_H */
