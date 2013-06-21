@@ -182,8 +182,6 @@ AC_DEFUN([AG_GST_CPU_TUNE],
       NEW_FLAGS="$NEW_FLAGS -mfloat-abi=softfp")
     AS_COMPILER_FLAG(-mfpu=neon, 
       NEW_FLAGS="$NEW_FLAGS -mfpu=neon")
-    AS_COMPILER_FLAG(-ftree-vectorize, 
-      NEW_FLAGS="$NEW_FLAGS -ftree-vectorize")
     AS_COMPILER_FLAG(-ffast-math, 
       NEW_FLAGS="$NEW_FLAGS -ffast-math")
     AS_COMPILER_FLAG(-fsingle-precision-constant, 

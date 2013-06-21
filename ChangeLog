@@ -1,3 +1,8 @@
+2013-06-21  Andoni Morales <amorales@fluendo.com>
+
+	* m4/gst-cpu-tune.m4:
+	Disable -ftree-vectorize, which conflicts with -fno-strict-aliasing
+
 2013-06-11  Josep Torra  <josep@fluendo.com>
 
 	* gst-compat.h:
