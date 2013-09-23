@@ -234,11 +234,14 @@ AC_DEFUN([AG_GST_CPU_TUNE],
   case "$host" in
     *darwin*)
       ;;
+    *mingw*)
+      ;;
     *-sun-* | *pc-solaris* )
       AC_CHECK_FILE([/usr/lib/ld/map.noexstk],
         [CPU_TUNE_LDFLAGS="${CPU_TUNE_LDFLAGS} -Wl,-M/usr/lib/ld/map.noexstk -static-libgcc"])
       ;;
     *)
+      dnl FIXME: this is a test for compiler flags but we are testing a linker flag
       AS_COMPILER_FLAG([-Wl,-znoexecstack], 
         [CPU_TUNE_LDFLAGS="$CPU_TUNE_LDFLAGS -Wl,-znoexecstack"])
       ;;
@@ -247,7 +250,7 @@ AC_DEFUN([AG_GST_CPU_TUNE],
   dnl libtool requires -no-udefined to build a DLL in windows
   case "$host" in
     *mingw*)
-      CPU_TUNE_LDFLAGS="$CPU_TUNE_LDFLAGS -Wl,-no-undefined"
+      CPU_TUNE_LDFLAGS="$CPU_TUNE_LDFLAGS -no-undefined"
       ;;
   esac
 

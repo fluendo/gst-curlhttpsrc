@@ -1,3 +1,9 @@
+2013-09-23  Andoni Morales <amorales@fluendo.com>
+
+	* m4/gst-cpu-tune.m4:
+	Disable -znoexecstack for mingw
+	Fix pass of -no-undefined to libtool (not as a linker flag)
+
 2013-06-21  Andoni Morales <amorales@fluendo.com>
 
 	* m4/gst-cpu-tune.m4:
