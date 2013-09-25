@@ -174,7 +174,6 @@ AC_DEFUN([AG_NEED_IPP],
 
     IPP_LIBS=""
     IPP_ARCHIVES=""
-    IPP_ARCHIVES_MINGW=""
     IPP_LIBDIR="${IPP_PREFIX}/lib"
 
     if test "x$THREAD_SAFE" = "xyes"; then
@@ -185,15 +184,13 @@ AC_DEFUN([AG_NEED_IPP],
       ARCHIVE="${AR_PRE}${lib}${IPP_SUFFIX}${AR_EXT}"
       IPP_LIBS+=" -l${lib}${IPP_SUFFIX}"
       IPP_ARCHIVES+=" ${ARCHIVE}"
-      IPP_ARCHIVES_MINGW+=" ${IPP_LIBDIR}/${ARCHIVE}.a"
     done
     for lib in ${IPP_TRAMPOLINE_LIST}; do
       ARCHIVE="${AR_PRE}${lib}${IPP_SUFFIX}${AR_EXT}"
       IPP_TRAMPOLINE_LIBS+=" -l${lib}${IPP_SUFFIX}"
       if test "x$BUILD_IN_WINDOWS" = "xtrue" ; then
-        IPP_LIBS+=" -l${lib}${IPP_SUFFIX}"
+        IPP_LIBS=" -l${lib}${IPP_SUFFIX} ${IPP_LIBS}"
         IPP_ARCHIVES+=" ${ARCHIVE}"
-        IPP_ARCHIVES_MINGW="${IPP_LIBDIR}/${ARCHIVE}.a ${IPP_ARCHIVES_MINGW}"
       fi
     done
 
@@ -209,7 +206,7 @@ AC_DEFUN([AG_NEED_IPP],
   dnl by bufferoverflowU.lib. This library can be found in the Windows
   dnl Driver Kit
   if test "x$BUILD_IN_WINDOWS" = "xtrue" ; then
-    IPP_ARCHIVES_MINGW+=" ${IPP_LIBDIR}/bufferoverflowU.a"
+    IPP_LIBS+=" -lbufferoverflowU"
   fi
 
   AC_SUBST(IPP_PATH)      dnl source directory
@@ -217,7 +214,6 @@ AC_DEFUN([AG_NEED_IPP],
   AC_SUBST(IPP_LIBS)      dnl ldflags
   AC_SUBST(IPP_TRAMPOLINE_LIBS)      dnl ldflags
   AC_SUBST(IPP_ARCHIVES)  dnl to iterate
-  AC_SUBST(IPP_ARCHIVES_MINGW)  dnl for mingw static linking
   AM_CONDITIONAL(USE_IPP, test "x$HAVE_IPP" = "xtrue")
 
   dnl Permit patching IPP library to avoid reallocation problems
