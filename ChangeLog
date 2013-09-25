@@ -1,6 +1,12 @@
 2013-09-25  Andoni Morales <amorales@fluendo.com>
 
 	* m4/ipp.m4:
+	Add libippmsvccpompat.a to the link providing the missing
+	allmul and chkstk stub symbols
+
+2013-09-25  Andoni Morales <amorales@fluendo.com>
+
+	* m4/ipp.m4:
 	Don't use the hack for MinGW anymore and use instead
 	libtool libraries for the ipp libs to help the link
 	of the static libraries in a shared module in Windows
