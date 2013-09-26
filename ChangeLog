@@ -1,3 +1,10 @@
+2013-09-26  Andoni Morales <amorales@fluendo.com>
+
+	* m4/ipp.m4:
+	_allmul and _chkstk are symbols from ntdll.dll that
+	are not correctly defined in mingw's ntdll.def.
+	The fix is therefore in MinGW's generated libntdll.a
+
 2013-09-25  Andoni Morales <amorales@fluendo.com>
 
 	* m4/ipp.m4:

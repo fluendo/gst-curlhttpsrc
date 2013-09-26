@@ -206,7 +206,7 @@ AC_DEFUN([AG_NEED_IPP],
   dnl by bufferoverflowU.lib. This library can be found in the Windows
   dnl Driver Kit
   if test "x$BUILD_IN_WINDOWS" = "xtrue" ; then
-    IPP_LIBS+=" -lbufferoverflowU -lippmsvccompat"
+    IPP_LIBS+=" -lbufferoverflowU -lntdll"
   fi
 
   AC_SUBST(IPP_PATH)      dnl source directory
