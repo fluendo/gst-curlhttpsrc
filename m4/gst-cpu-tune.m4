@@ -66,6 +66,36 @@ AC_DEFUN([AG_GST_CPU_TUNE],
       NEW_FLAGS="$NEW_FLAGS -march=armv6j")
     AS_COMPILER_FLAG(-mtune=arm1176jzf-s, 
       NEW_FLAGS="$NEW_FLAGS -mtune=arm1176jzf-s")
+
+    dnl Some assembly code requires -fomit-frame-pointer
+    AS_COMPILER_FLAG(-fomit-frame-pointer, 
+      NEW_FLAGS="$NEW_FLAGS -fomit-frame-pointer")
+
+    CPU_TUNE_CFLAGS="$CPU_TUNE_CFLAGS $NEW_FLAGS"
+    CPU_TUNE_CCASFLAGS="$CPU_TUNE_CCASFLAGS $NEW_FLAGS"
+    AC_DEFINE(USE_ARMV6_SIMD, TRUE, [Build with ARM v6 optimizations])
+  fi
+
+  dnl tune build for Marvell Dove
+  AC_ARG_ENABLE(cpu-tune-dove,
+    AC_HELP_STRING([--enable-cpu-tune-dove], 
+      [enable CFLAGS/CCASFLAGS tuned for Marvell Dove]),
+    [TUNE=yes],
+    [TUNE=no]) dnl Default value
+
+  if test "x$TUNE" = xyes; then
+    NEW_FLAGS=""
+    AC_MSG_NOTICE(Build will be tuned for Marvell Dove)
+    AS_COMPILER_FLAG(-march=armv7-a, 
+      NEW_FLAGS="$NEW_FLAGS -march=armv7-a")
+    AS_COMPILER_FLAG(-mtune=cortex-a9, 
+      NEW_FLAGS="$NEW_FLAGS -mtune=cortex-a9")
+    AS_COMPILER_FLAG(-mthumb, 
+      NEW_FLAGS="$NEW_FLAGS -mthumb")
+    AS_COMPILER_FLAG(-mfloat-abi=softfp, 
+      NEW_FLAGS="$NEW_FLAGS -mfloat-abi=softfp")
+    AS_COMPILER_FLAG(-mfpu=vfpv3-d16, 
+      NEW_FLAGS="$NEW_FLAGS -mfpu=vfpv3-d16")
     dnl Some assembly code requires -fomit-frame-pointer
     AS_COMPILER_FLAG(-fomit-frame-pointer, 
       NEW_FLAGS="$NEW_FLAGS -fomit-frame-pointer")
