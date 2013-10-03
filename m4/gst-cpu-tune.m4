@@ -75,6 +75,18 @@ AC_DEFUN([AG_GST_CPU_TUNE],
     AC_DEFINE(USE_ARMV6_SIMD, TRUE, [Build with ARM v6 optimizations])
   fi
 
+  dnl Build the ARM v6 code
+  AC_ARG_ENABLE(armv6-code,
+    AC_HELP_STRING([--enable-armv6-code], 
+      [enable conditional code for armv6]),
+    [TUNE=yes],
+    [TUNE=no]) dnl Default value
+     
+  if test "x$TUNE" = xyes; then
+    AC_MSG_NOTICE(Build with ARM v6 assembly optimized code)
+    AC_DEFINE(USE_ARMV6_SIMD, TRUE, [Build with ARM v6 optimizations])
+  fi
+
   dnl tune build for ARM Cortex A8 cpus
   AC_ARG_ENABLE(cpu-tune-cortex-a8,
     AC_HELP_STRING([--enable-cpu-tune-cortex-a8], 

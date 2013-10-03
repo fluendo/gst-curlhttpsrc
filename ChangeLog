@@ -1,3 +1,8 @@
+2013-10-03  Josep Torra  <josep@fluendo.com>
+
+	* m4/gst-cpu-tune.m4:
+	Add a flag to enable arm v6 conditional code.
+
 2013-09-26  Andoni Morales <amorales@fluendo.com>
 
 	* m4/ipp.m4:
