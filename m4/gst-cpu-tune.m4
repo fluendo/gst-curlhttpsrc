@@ -86,10 +86,20 @@ AC_DEFUN([AG_GST_CPU_TUNE],
   if test "x$TUNE" = xyes; then
     NEW_FLAGS=""
     AC_MSG_NOTICE(Build will be tuned for Marvell Dove)
-    AS_COMPILER_FLAG(-march=armv7-a, 
+
+    AS_COMPILER_FLAG(-march=armv7-a,
       NEW_FLAGS="$NEW_FLAGS -march=armv7-a")
-    AS_COMPILER_FLAG(-mtune=cortex-a9, 
-      NEW_FLAGS="$NEW_FLAGS -mtune=cortex-a9")
+
+    AS_COMPILER_FLAG(-mtune=marvell-pj4, [mtune_pj4=yes], [mtune_pj4=no])
+    if test "x$mtune_pj4" = xyes; then
+      dnl FIXME: we should use -mcpu=marvell-pj4 too instead of -march 
+      dnl but doesn't work in Ubuntu gcc 4.8 from ppa:ubuntu-toolchain-r
+      NEW_FLAGS="$NEW_FLAGS -mtune=marvell-pj4"
+    else
+      AS_COMPILER_FLAG(-mtune=cortex-a9,
+        NEW_FLAGS="$NEW_FLAGS -mtune=cortex-a9")
+    fi
+
     AS_COMPILER_FLAG(-mthumb, 
       NEW_FLAGS="$NEW_FLAGS -mthumb")
     AS_COMPILER_FLAG(-mfloat-abi=softfp, 
