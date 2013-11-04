@@ -1,5 +1,9 @@
 2013-11-04  Julien Moutte <julien@fluendo.com>
 
+	* gst-demo.h: Fix small mistakes in my previous commit for 1.0.
+
+2013-11-04  Julien Moutte <julien@fluendo.com>
+
 	* gst-compat.h: Add backward definition for GST_FLOW_EOS and _FLUSHING
 	* gst-demo.h: Add a demo handling function for audio encoder base class
 	Remove useless functions and fix a potential race occuring when EOS is

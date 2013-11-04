@@ -175,7 +175,7 @@ gstflu_demo_check_video_decoder_frame (GstFluDemoStatistics * stats,
     GstVideoDecoder * dec, GstVideoCodecFrame * frame)
 {
 #if ENABLE_DEMO_PLUGIN
-  return gstflu_demo_check_video_frame (stats,
+  return gstflu_demo_check_buffer (stats,
       GST_VIDEO_DECODER_SINK_PAD (dec),
       GST_VIDEO_DECODER_SRC_PAD (dec),
       frame->duration);
@@ -211,7 +211,7 @@ gstflu_demo_finish_audio_encoder_frame (GstFluDemoStatistics * stats,
       gst_buffer_get_size (buf), GST_AUDIO_INFO_RATE (info),
       GST_AUDIO_INFO_CHANNELS (info), GST_AUDIO_INFO_DEPTH (info))
        == GST_FLOW_OK))
-    ret = gst_audio_encoder_finish_frame (dec, buf, samples);
+    ret = gst_audio_encoder_finish_frame (enc, buf, samples);
   else
     gst_buffer_unref (buf);
   return ret;
