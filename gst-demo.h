@@ -93,7 +93,6 @@ gstflu_demo_check_buffer (GstFluDemoStatistics * stats, GstPad * sink,
 
   stats->decoded_duration += duration;
   if (G_UNLIKELY (stats->decoded_duration >= stats->max_duration)) {
-    gst_pad_push_event (src, gst_event_new_eos());
     GST_ELEMENT_ERROR (element, STREAM, FAILED,
         ("Fluendo decoders terminated playback of this media"
          " stream as this is an evaluation version of Fluendo's"
@@ -101,7 +100,7 @@ gstflu_demo_check_buffer (GstFluDemoStatistics * stats, GstPad * sink,
          " product please contact sales@fluendo.com."),
          (NULL));
     gst_object_unref (element);
-    return GST_FLOW_ERROR;
+    return GST_FLOW_EOS;
   } else {
     gst_object_unref (element);
     return GST_FLOW_OK;
@@ -129,7 +128,8 @@ gstflu_demo_check_video_buffer (GstFluDemoStatistics * stats, GstPad * sink,
     GstPad * src, gint fps_n, gint fps_d)
 {
 #if ENABLE_DEMO_PLUGIN
-  return gstflu_demo_check_buffer (stats, sink, src, gst_util_uint64_scale_int (fps_d, GST_SECOND, fps_n));
+  return gstflu_demo_check_buffer (stats, sink, src,
+      gst_util_uint64_scale_int (fps_d, GST_SECOND, fps_n));
 #else
   return GST_FLOW_OK;
 #endif
@@ -149,10 +149,11 @@ gstflu_demo_check_audio_buffer (GstFluDemoStatistics * stats, GstPad * sink,
 #endif
 }
 
-#ifdef POST_1_0
+#if GST_CHECK_VERSION (1,0,0)
+
 static inline GstFlowReturn
 gstflu_demo_finish_audio_decoder_buffer (GstFluDemoStatistics * stats,
-    GstAudioDecoder * dec, GstBuffer *buf, gint frames)
+    GstAudioDecoder * dec, GstBuffer * buf, gint frames)
 {
   GstFlowReturn ret;
   GstAudioInfo *info;
@@ -170,17 +171,6 @@ gstflu_demo_finish_audio_decoder_buffer (GstFluDemoStatistics * stats,
 }
 
 static inline GstFlowReturn
-gstflu_demo_check_video_frame (GstFluDemoStatistics * stats,
-    GstPad * sink, GstPad * src, GstVideoCodecFrame * frame)
-{
-#if ENABLE_DEMO_PLUGIN
-  return gstflu_demo_check_buffer (stats, sink, src, frame->duration);
-#else
-  return GST_FLOW_OK;
-#endif
-}
-
-static inline GstFlowReturn
 gstflu_demo_check_video_decoder_frame (GstFluDemoStatistics * stats,
     GstVideoDecoder * dec, GstVideoCodecFrame * frame)
 {
@@ -188,7 +178,7 @@ gstflu_demo_check_video_decoder_frame (GstFluDemoStatistics * stats,
   return gstflu_demo_check_video_frame (stats,
       GST_VIDEO_DECODER_SINK_PAD (dec),
       GST_VIDEO_DECODER_SRC_PAD (dec),
-      frame);
+      frame->duration);
 #else
   return GST_FLOW_OK;
 #endif
@@ -205,6 +195,25 @@ gstflu_demo_finish_video_decoder_frame (GstFluDemoStatistics * stats,
     ret = gst_video_decoder_finish_frame (dec, frame);
   else
     gst_video_decoder_drop_frame (dec, frame);
+  return ret;
+}
+
+static inline GstFlowReturn
+gstflu_demo_finish_audio_encoder_frame (GstFluDemoStatistics * stats,
+    GstAudioEncoder * enc, GstBuffer * buf, gint samples)
+{
+  GstFlowReturn ret;
+  GstAudioInfo *info;
+
+  info = gst_audio_encoder_get_audio_info (enc);
+  if ((ret = gstflu_demo_check_audio_buffer (stats,
+      GST_AUDIO_ENCODER_SINK_PAD (enc), GST_AUDIO_ENCODER_SRC_PAD (enc),
+      gst_buffer_get_size (buf), GST_AUDIO_INFO_RATE (info),
+      GST_AUDIO_INFO_CHANNELS (info), GST_AUDIO_INFO_DEPTH (info))
+       == GST_FLOW_OK))
+    ret = gst_audio_encoder_finish_frame (dec, buf, samples);
+  else
+    gst_buffer_unref (buf);
   return ret;
 }
 
