@@ -1,9 +1,10 @@
 #ifndef _GST_DEMO_H_
 #define _GST_DEMO_H_
 
-#ifdef POST_1_0
+#if GST_CHECK_VERSION (1,0,0)
 #include <gst/audio/gstaudiodecoder.h>
 #include <gst/video/gstvideodecoder.h>
+#include <gst/audio/gstaudioencoder.h>
 #endif
 
 typedef struct _GstFluDemoStatistics {

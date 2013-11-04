@@ -1,5 +1,9 @@
 2013-11-04  Julien Moutte <julien@fluendo.com>
 
+	* gst-demo.h: Need to include the base class for audio encoder.
+
+2013-11-04  Julien Moutte <julien@fluendo.com>
+
 	* gst-demo.h: Fix small mistakes in my previous commit for 1.0.
 
 2013-11-04  Julien Moutte <julien@fluendo.com>
