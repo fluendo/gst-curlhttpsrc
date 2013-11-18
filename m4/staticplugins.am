@@ -1,14 +1,13 @@
-# Helper rules for static plugins #
-
+include $(top_srcdir)/common/m4/libtool.mk
 # Generate list of plugin links (eg: -lcoreelements -lvideoscale)
 GSTREAMER_STATIC_C        := gstreamer_static.c
-GSTREAMER_PLUGINS_LIBS    := $(foreach plugin, $(GSTREAMER_STATIC_PLUGINS), -lgst$(plugin) )
-GSTREAMER_PLUGINS_LDFLAGS := -L$(GSTREAMER_STATIC_PLUGINS_DIR)
 
-# Generate the plugins' declaration strings
+define fix-plugin-name
+$(subst gst$1 ,gst$2 ,$3)
+endef
+
 GSTREAMER_PLUGINS_DECLARE    := $(foreach plugin, $(GSTREAMER_STATIC_PLUGINS),\
 			GST_PLUGIN_STATIC_DECLARE($(plugin));\n)
-# Generate the plugins' registration strings
 GSTREAMER_PLUGINS_REGISTER   := $(foreach plugin, $(GSTREAMER_STATIC_PLUGINS),\
 			GST_PLUGIN_STATIC_REGISTER($(plugin));\n)
 
@@ -19,6 +18,15 @@ $(GSTREAMER_STATIC_C):Makefile
 	@echo -e "void gst_register_static_plugins (void) {" >> $(GSTREAMER_STATIC_C)
 	@echo -e "$(GSTREAMER_PLUGINS_REGISTER)" >> $(GSTREAMER_STATIC_C)
 	@echo -e "}" >> $(GSTREAMER_STATIC_C)
+	@sed -i s/playbin/playback/g $(GSTREAMER_STATIC_C)
+	@sed -i s/rtpmanager/gstrtpmanager/g $(GSTREAMER_STATIC_C)
+	@sed -i s/souphttpsrc/soup/g $(GSTREAMER_STATIC_C)
+	@sed -i s/decodebin2/uridecodebin/g $(GSTREAMER_STATIC_C)
+	@sed -i s/siren/gstsiren/g $(GSTREAMER_STATIC_C)
+	@sed -i s/pulse/pulseaudio/g $(GSTREAMER_STATIC_C)
 
+define list-static-plugins-libs
+$(call libtool-link, $(GSTREAMER_STATIC_PLUGINS),$1,$(GSTREAMER_STATIC_PLUGINS_DIR))
+endef
 
 CLEANFILES = $(GSTREAMER_STATIC_C)
