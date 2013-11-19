@@ -1,5 +1,9 @@
 2013-11-15  Andoni Morales <amorales@fluendo.com>
 
+	* m4/libtool.mk: Add missing -l to shared libraries that don't have it
+
+2013-11-15  Andoni Morales <amorales@fluendo.com>
+
 	* m4/libtool.mk: Import helper from the android ndk
 	* m4/staticplugins.am:
 	Add a new helper to transform a list of plugins into

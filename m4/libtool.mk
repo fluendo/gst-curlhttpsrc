@@ -42,8 +42,11 @@ define libtool-parse-lib
   $(eval __tmpvar := $(strip $(call libtool-find-lib,$(patsubst -l%,%,$1))))\
   $(if $(__tmpvar), \
     $(call libtool-parse-file,$(__tmpvar),$(strip $(call libtool-name-from-filepath,$(__tmpvar)))),\
-    $(eval __libtool.link.shared_libs += $1)\
     $(call __libtool_log, libtool file not found for "$1" and will be added to the shared libs)\
+    $(if $(findstring __-l, __$1),\
+      $(eval __libtool.link.shared_libs += $1),\
+      $(eval __libtool.link.shared_libs += -l$1)\
+    )\
   )
 endef
 
