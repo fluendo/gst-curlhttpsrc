@@ -1,5 +1,10 @@
 2013-11-15  Andoni Morales <amorales@fluendo.com>
 
+	* m4/staticplugins.am: Use the more portable printf and
+	fix plugin regsitry entry point for osxvideosink
+
+2013-11-15  Andoni Morales <amorales@fluendo.com>
+
 	* m4/libtool.mk: Add missing -l to shared libraries that don't have it
 
 2013-11-15  Andoni Morales <amorales@fluendo.com>

@@ -12,18 +12,20 @@ GSTREAMER_PLUGINS_REGISTER   := $(foreach plugin, $(GSTREAMER_STATIC_PLUGINS),\
 			GST_PLUGIN_STATIC_REGISTER($(plugin));\n)
 
 # Generates a source file that declares and registers all the required plugins
+PRINTF=printf
 $(GSTREAMER_STATIC_C):Makefile
-	@echo -e "#include <gst/gst.h>" > $(GSTREAMER_STATIC_C)
-	@echo -e "$(GSTREAMER_PLUGINS_DECLARE)" >> $(GSTREAMER_STATIC_C)
-	@echo -e "void gst_register_static_plugins (void) {" >> $(GSTREAMER_STATIC_C)
-	@echo -e "$(GSTREAMER_PLUGINS_REGISTER)" >> $(GSTREAMER_STATIC_C)
-	@echo -e "}" >> $(GSTREAMER_STATIC_C)
+	@$(PRINTF) "#include <gst/gst.h>\n" > $(GSTREAMER_STATIC_C)
+	@$(PRINTF) "$(GSTREAMER_PLUGINS_DECLARE)\n" >> $(GSTREAMER_STATIC_C)
+	@$(PRINTF) "void gst_register_static_plugins (void) {\n" >> $(GSTREAMER_STATIC_C)
+	@$(PRINTF)  "$(GSTREAMER_PLUGINS_REGISTER)\n" >> $(GSTREAMER_STATIC_C)
+	@$(PRINTF)  "}\n" >> $(GSTREAMER_STATIC_C)
 	@sed -i s/playbin/playback/g $(GSTREAMER_STATIC_C)
 	@sed -i s/rtpmanager/gstrtpmanager/g $(GSTREAMER_STATIC_C)
 	@sed -i s/souphttpsrc/soup/g $(GSTREAMER_STATIC_C)
 	@sed -i s/decodebin2/uridecodebin/g $(GSTREAMER_STATIC_C)
 	@sed -i s/siren/gstsiren/g $(GSTREAMER_STATIC_C)
 	@sed -i s/pulse/pulseaudio/g $(GSTREAMER_STATIC_C)
+	@sed -i s/osxvideosink/osxvideo/g $(GSTREAMER_STATIC_C)
 
 define list-static-plugins-libs
 $(call libtool-link, $(GSTREAMER_STATIC_PLUGINS),$1,$(GSTREAMER_STATIC_PLUGINS_DIR))
