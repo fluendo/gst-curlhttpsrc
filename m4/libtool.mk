@@ -136,7 +136,7 @@ define libtool-get-libs-search-paths
   $(foreach library,$(__libtool_libs.ordered),\
     $(foreach path,$(__libtool_libs.$(library).LIBS_SEARCH_PATH),\
       $(if $(findstring $(path), $(__tmpvar.paths)), ,\
-        $(eval __tmpvar.paths += $(path))\
+        $(eval __tmpvar.paths += $(subst =,, $(path)))\
       )\
     )\
   )\
