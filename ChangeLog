@@ -1,3 +1,8 @@
+2013-11-25  Andoni Morales <amorales@fluendo.com>
+
+	* m4/staticplugins.am:
+	Fix registry names for windows plugins
+
 2013-11-22  Andoni Morales <amorales@fluendo.com>
 
 	* m4/libtool.mk: Remove '=' from search paths (as seen in windows)

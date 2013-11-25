@@ -26,6 +26,9 @@ $(GSTREAMER_STATIC_C):Makefile
 	@sed -i s/siren/gstsiren/g $(GSTREAMER_STATIC_C)
 	@sed -i s/pulse/pulseaudio/g $(GSTREAMER_STATIC_C)
 	@sed -i s/osxvideosink/osxvideo/g $(GSTREAMER_STATIC_C)
+	@sed -i s/directsoundsink/directsound/g $(GSTREAMER_STATIC_C)
+	@sed -i s/directdrawsink/directdraw/g $(GSTREAMER_STATIC_C)
+	@sed -i s/flud3dvideosink/d3dsinkwrapper/g $(GSTREAMER_STATIC_C)
 
 define list-static-plugins-libs
 $(call libtool-link, $(GSTREAMER_STATIC_PLUGINS),$1,$(GSTREAMER_STATIC_PLUGINS_DIR))
