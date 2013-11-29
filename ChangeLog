@@ -1,3 +1,8 @@
+2013-11-29  Julien Moutte <julien@fluendo.com>
+
+	* fluendo-plugins-sdk.props: Prepare for 1.0 build while maintaining
+	backward compatibility with old project files.
+
 2013-11-25  Andoni Morales <amorales@fluendo.com>
 
 	* m4/staticplugins.am:
