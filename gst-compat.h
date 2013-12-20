@@ -139,6 +139,16 @@ gst_object_ref_sink (gpointer object)
 }
 #endif
 
+#if !GST_CHECK_VERSION(0,10,26)
+static inline void
+gst_caps_set_value (GstCaps *caps, const char *field, const GValue *value)
+{
+  GstStructure *structure;
+  structure = gst_caps_get_structure (caps, 0);
+  gst_structure_set_value (structure, field, value);
+}
+#endif
+
 #if !GST_CHECK_VERSION(0,10,33)
 #define GST_BUFFER_FLAG_MEDIA4 GST_MINI_OBJECT_FLAG_RESERVED1
 #endif
