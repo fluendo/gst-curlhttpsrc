@@ -1,3 +1,10 @@
+2013-12-24  Andoni Morales  <amorales@fluendo.com>
+
+	* platform.m4:
+	Add macro for platform detection
+	* wibu.m4:
+	Add macro for WIBU detection
+
 2013-12-20  Josep Torra  <josep@fluendo.com>
 
 	* gst-compat.h:
