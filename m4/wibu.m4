@@ -28,10 +28,10 @@ if [test "x$with_wibu_val" == "xyes"]; then
     xLinux)
       if test "x$HAVE_CPU_X86_64" = "xyes"; then
         _WUPI_LIBS="-lwupienginelin64"
-        _CODEMETER_LIBS="-lwibucmhiplin64"
+        _CODEMETER_LIBS="-lwibucmlin64"
       else
         _WUPI_LIBS="-lwupienginelin"
-        _CODEMETER_LIBS="-lwibucmhiplin"
+        _CODEMETER_LIBS="-lwibucmlin"
       fi
       ;;
     xWindows)
