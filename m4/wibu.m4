@@ -1,6 +1,6 @@
-dnl AG_WIBU
-dnl check for CODEMETER and WUPI headers and libraries
-dnl sets HAVE_WIBU, WUPI_LIBS, WUPI_FLAGS, CODEMETER_LIBS, CODEMETER_FLAGS
+dnl AG_WIBU([needs_wupi], [needs_codemeter])
+dnl check for AxProtector and CodeMeter headers and libraries
+dnl sets WITH_WIBU, WUPI_LIBS, WUPI_FLAGS, CODEMETER_LIBS, CODEMETER_FLAGS
 dnl defines BUILD_WIBU
 
 AC_DEFUN([AG_WIBU],
@@ -8,6 +8,8 @@ AC_DEFUN([AG_WIBU],
 # Requires AG_GST_ARCH and AG_PLATFORM
 # WIBU CodeMeter (note we need arch to figure out library name...)
 
+needs_wupi=$1
+needs_codemeter=$2
 build_wibu=no
 
 AC_ARG_WITH(wibu,
@@ -43,42 +45,51 @@ if [test "x$with_wibu_val" == "xyes"]; then
       ;;
   esac
 
-  save_CPPFLAGS="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS $_WUPI_CFLAGS $_CODEMETER_CFLAGS"
-  save_LIBS="$LIBS"
-  LIBS="$LIBS $_WUPI_LIBS $_CODEMETER_LIBS"
+  if [ test "x$needs_wupi" = "xyes" ]; then
+    save_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="$CPPFLAGS $_WUPI_CFLAGS"
+    save_LIBS="$LIBS"
+    LIBS="$LIBS $_WUPI_LIBS"
 
-  dnl Check for wibuixap.h headers
-  AC_CHECK_HEADERS(wibuixap.h, [have_wupi_h="yes"], [have_wupi_h="no"])
-  dnl Check for CodeMeter.h headers
-  AC_CHECK_HEADERS(CodeMeter.h, [have_codemeter_h="yes"], [have_codemeter_h="no"])
+    dnl Check for wibuixap.h headers
+    AC_CHECK_HEADERS(wibuixap.h, [have_wupi_h="yes"], [have_wupi_h="no"])
+    dnl Check for WupiGetLastError()
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([
+      #include <wibuixap.h>],[
+      WupiGetLastError();])], [have_wupi="yes"],[have_wupi="no"])
 
-  if test "x$have_wupi_h" = "xno" || test "x$have_codemeter_h" = "xno"; then
-    AC_MSG_ERROR([you need to have CodeMeter and AxProtector installed ])
+    if [ test "x$have_wupi" = "xno" ]; then
+      AC_MSG_ERROR([you need to have AxProtector installed ])
+    fi
+    LIBS=$save_LIBS
+    CPPFLAGS=$save_CPPFLAGS
   fi
 
-  dnl Check for WupiGetLastError()
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([
-    #include <wibuixap.h>],[
-    WupiGetLastError();])], [have_wupi="yes"],[have_wupi="no"])
+  if [ test "x$needs_codemeter" = "xyes" ]; then
+    save_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="$CPPFLAGS $_CODEMETER_CFLAGS"
+    save_LIBS="$LIBS"
+    LIBS="$LIBS $_CODEMETER_LIBS"
+    dnl Check for CodeMeter.h headers
+    AC_CHECK_HEADERS(CodeMeter.h, [have_codemeter_h="yes"], [have_codemeter_h="no"])
 
-  dnl Check for WupiGetLastError()
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([
-    #include <CodeMeter.h>],[
-    CmGetLastErrorCode();])], [have_codemeter="yes"],[have_codemeter="no"])
+    dnl Check for WupiGetLastError()
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([
+      #include <CodeMeter.h>],[
+      CmGetLastErrorCode();])], [have_codemeter="yes"],[have_codemeter="no"])
 
-  LIBS=$save_LIBS
-  CPPFLAGS=$save_CPPFLAGS
-
-  if test "x$have_wupi" = "xyes" && test "x$have_codemeter" = "xyes"; then
-    build_wibu="yes"
-    WUPI_LIBS=$_WUPI_LIBS
-    WUPI_CFLAGS=$_WUPI_CFLAGS
-    CODEMETER_LIBS=$_CODEMETER_LIBS
-    CODEMETER_CFLAGS=$_CODEMETER_CFLAGS
-  else
-    AC_MSG_ERROR([you need to have CodeMeter and AxProtector installed ])
+    if [ test "x$have_codemeter" = "xno" ]; then
+      AC_MSG_ERROR([you need to have CodeMeter installed ])
+    fi
+    LIBS=$save_LIBS
+    CPPFLAGS=$save_CPPFLAGS
   fi
+
+  build_wibu="yes"
+  WUPI_LIBS=$_WUPI_LIBS
+  WUPI_CFLAGS=$_WUPI_CFLAGS
+  CODEMETER_LIBS=$_CODEMETER_LIBS
+  CODEMETER_CFLAGS=$_CODEMETER_CFLAGS
 fi
 
 if [test "x$build_wibu" == "xyes" ]; then
