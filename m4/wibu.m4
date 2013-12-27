@@ -36,11 +36,11 @@ if [test "x$with_wibu_val" == "xyes"]; then
       ;;
     xWindows)
       if test "x$HAVE_CPU_X86_64" = "xyes"; then
-        _WUPI_LIBS="WupiEngine64.dll"
-        _CODEMETER_LIBS="WibuCm64.dll"
+        _WUPI_LIBS="-lWupiEngine64"
+        _CODEMETER_LIBS="-lWibuCm64"
       else
-        _WUPI_LIBS="WupiEngine32.dll"
-        _CODEMETER_LIBS="WibuCm32.dll"
+        _WUPI_LIBS="-lWupiEngine32"
+        _CODEMETER_LIBS="-lWibuCm32"
       fi
       ;;
   esac
