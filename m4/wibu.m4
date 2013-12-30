@@ -22,7 +22,7 @@ if [test "x$with_wibu_val" == "xyes"]; then
     xDarwin)
       _WUPI_LIBS="-lwupienginemac -L/Developer/WIBU-SYSTEMS/AxProtector/lib"
       _WUPI_CFLAGS='-I/Developer/WIBU-SYSTEMS/AxProtector/include'
-      _CODEMETER_LIBS="-framework WibuCmMacX "
+      _CODEMETER_LIBS="-F/Library/Frameworks -framework WibuCmMacX "
       _CODEMETER_CFLAGS='-I/Developer/WIBU-SYSTEMS/CodeMeter/include'
       ;;
     xLinux)

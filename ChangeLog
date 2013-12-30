@@ -1,6 +1,11 @@
 2013-12-27  Andoni Morales  <amorales@fluendo.com>
 
 	* wibu.m4:
+	Add framework search path for Mavericks
+
+2013-12-27  Andoni Morales  <amorales@fluendo.com>
+
+	* wibu.m4:
 	Fix library names in Windows
 
 2013-12-27  Xavi Artigas  <xartigas@fluendo.com>
