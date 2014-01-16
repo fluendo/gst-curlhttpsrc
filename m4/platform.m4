@@ -22,10 +22,15 @@ case "x${host_os}" in
     AC_DEFINE_UNQUOTED(HAVE_OS_ANDROID, 1, [Indicate we are building for Android])
     ostype=Android
     ;;
+  *solaris*)
+    AC_DEFINE_UNQUOTED(HAVE_OS_SOLARIS, 1, [Indicate we are building for Solaris])
+    ostype=Solaris
+    ;;
 esac
 AM_CONDITIONAL(HAVE_OS_WINDOWS, test x$ostype = xWindows)
 AM_CONDITIONAL(HAVE_OS_DARWIN, test x$ostype = xDarwin)
 AM_CONDITIONAL(HAVE_OS_LINUX, test x$ostype = xLinux)
 AM_CONDITIONAL(HAVE_OS_ANDROID, test x$ostype = xAndroid)
+AM_CONDITIONAL(HAVE_OS_SOLARIS, test x$ostype = xSolaris)
 AC_MSG_RESULT($ostype)
 ])
