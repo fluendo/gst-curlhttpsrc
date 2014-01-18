@@ -1,3 +1,10 @@
+2014-01-18  Julien Moutte <julien@fluendo.com>
+
+	* m4/ipp.m4: when linking on Windows we need to make
+	sure that we pull symbols from MSVCRT instead of NTDLL.
+	Indeed I've seen sscanf from NTDLL seriously break and the
+	symbol was used from NTDLL because of our link flag from ipp.
+
 2014-01-16  Andoni Morales  <amorales@fluendo.com>
 
 	* m4/platform.m4:

@@ -204,9 +204,11 @@ AC_DEFUN([AG_NEED_IPP],
   dnl IPP libs are compiled with the buffer security check leading to
   dnl an unresolved symbol __security_check_cookie, which is provided
   dnl by bufferoverflowU.lib. This library can be found in the Windows
-  dnl Driver Kit
+  dnl Driver Kit. Nevertheless we add msvcrt first to make sure we don't
+  dnl start pulling tons of symbols provided by msvcrt from ntdll which could
+  dnl seriously break our build like sscanf.
   if test "x$BUILD_IN_WINDOWS" = "xtrue" ; then
-    IPP_LIBS+=" -lbufferoverflowU -lntdll"
+    IPP_LIBS+=" -lbufferoverflowU -lmsvcrt -lntdll"
   fi
 
   AC_SUBST(IPP_PATH)      dnl source directory
