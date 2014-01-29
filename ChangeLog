@@ -1,3 +1,7 @@
+2014-01-28  Andoni Morales <amorales@fluendo.com>
+
+	* m4/platform.m4: Add detection support for iOS 
+
 2014-01-18  Julien Moutte <julien@fluendo.com>
 
 	* m4/ipp.m4: when linking on Windows we need to make
