@@ -1,3 +1,15 @@
+2014-03-14  Jorge Zapata <jzapata@fluendo.com>
+
+	* doc:
+	* doc/Doxyfile_common.in:
+	* doc/css:
+	* doc/css/stylesheet.css:
+	* doc/doxygen_to_devhelp.xsl:
+	* doc/footer.html:
+	* doc/header.html:
+	* doxygen.mak:
+	Add the documentation common files
+
 2014-01-28  Andoni Morales <amorales@fluendo.com>
 
 	* m4/platform.m4: Add detection support for iOS 
