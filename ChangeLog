@@ -1,3 +1,8 @@
+2014-03-25  Josep Torra  <josep@fluendo.com>
+
+	* gst-compat.h:
+	Add a replacement for gst_caps_steal_structure.
+
 2014-03-14  Jorge Zapata <jzapata@fluendo.com>
 
 	* doc:

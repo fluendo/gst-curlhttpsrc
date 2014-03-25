@@ -149,6 +149,23 @@ gst_caps_set_value (GstCaps *caps, const char *field, const GValue *value)
 }
 #endif
 
+#if !GST_CHECK_VERSION(0,10,30)
+static inline GstStructure *
+gst_caps_steal_structure (GstCaps * caps, guint index)
+{
+  GstStructure *s;
+  g_return_val_if_fail (caps != NULL, NULL);
+  g_return_val_if_fail ((g_atomic_int_get (&(caps)->refcount) == 1), NULL);
+
+  if (G_UNLIKELY (index >= caps->structs->len))
+    return NULL;
+
+  s = g_ptr_array_remove_index (caps->structs, index);
+  gst_structure_set_parent_refcount (s, NULL);
+  return s;
+}
+#endif
+
 #if !GST_CHECK_VERSION(0,10,33)
 #define GST_BUFFER_FLAG_MEDIA4 GST_MINI_OBJECT_FLAG_RESERVED1
 #endif
