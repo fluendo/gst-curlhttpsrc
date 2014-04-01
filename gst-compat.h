@@ -20,6 +20,18 @@
 typedef unsigned long guintptr;
 #endif
 
+#if (!GLIB_CHECK_VERSION(2,28,0))
+static inline void
+g_list_free_full (GList * list, GDestroyNotify free_func)
+{
+  GList *next = list;
+  while (next) {
+    free_func (next->data);
+    next = g_list_remove_link (next, next);
+  }
+}
+#endif
+
 #ifndef GST_CHECK_VERSION
 #define GST_CHECK_VERSION(major,minor,micro)  \
     (GST_VERSION_MAJOR > (major) || \
