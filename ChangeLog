@@ -1,3 +1,8 @@
+2014-04-01  Josep Torra  <josep@fluendo.com>
+
+	* gst-compat.h:
+	Provide guintptr definition to allow builds wiht older glib2.
+
 2014-03-25  Josep Torra  <josep@fluendo.com>
 
 	* gst-compat.h:

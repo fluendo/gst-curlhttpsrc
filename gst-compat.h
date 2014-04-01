@@ -16,6 +16,10 @@
 #define g_once_init_leave(_token,_value) (*(_token)=(_value))
 #endif
 
+#if !GLIB_CHECK_VERSION(2,18,0)
+typedef unsigned long guintptr;
+#endif
+
 #ifndef GST_CHECK_VERSION
 #define GST_CHECK_VERSION(major,minor,micro)  \
     (GST_VERSION_MAJOR > (major) || \
