@@ -1,3 +1,8 @@
+2014-04-02  Jorge Zapata  <jzapata@fluendo.com>
+
+	* m4/ipp.m4:
+	Do not use ipp on non-intel archs
+
 2014-04-01  Josep Torra  <josep@fluendo.com>
 
 	* gst-compat.h:

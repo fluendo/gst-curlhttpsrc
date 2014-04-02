@@ -68,22 +68,32 @@ AC_DEFUN([AG_CHECK_IPP],
     IPP_AVAIL="`ls -vrd $IPP_PREFIX/* | sed 's|.*/||' 2>/dev/null`"
     HAVE_IPP=false
   fi
- 
-  if test "x$BUILD_IN_MACOS" = "xtrue" ; then
-    IPP_SUFFIX=""
-  else
-    if test "x$IPP_ARCH" = "x11" ; then
-      IPP_CPU="lp32"
-      IPP_SUFFIX=""
-    else
-      if test "x$host_cpu" = "xamd64" -o "x$host_cpu" = "xx86_64" ; then
-        IPP_CPU="em64t"
-        IPP_SUFFIX="em64t"
+
+  dnl IPP is only valid for x86 based archs
+  case "x${host_cpu}" in
+    xi?86)
+      if test "x$IPP_ARCH" = "x11" ; then
+        IPP_CPU="lp32"
+        IPP_SUFFIX=""
       else
         IPP_CPU="ia32"
         IPP_SUFFIX=""
       fi
-    fi
+    ;;
+    xi?86_64 | xx86_64)
+      IPP_CPU="em64t"
+      IPP_SUFFIX="em64t"
+    ;;
+    *)
+      CHECK_FOR_IPP=false
+      HAVE_IPP=false
+    ;;
+  esac
+
+  dnl For OSX there is no suffix nor cpu
+  if test "x$BUILD_IN_MACOS" = "xtrue" ; then
+    IPP_SUFFIX=""
+    IPP_CPU=""
   fi
 
   if test "x$CHECK_FOR_IPP" = "xtrue"; then
