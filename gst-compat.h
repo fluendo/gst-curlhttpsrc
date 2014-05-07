@@ -212,5 +212,16 @@ gst_buffer_map (GstBuffer * buffer, GstMapInfo * info, GstMapFlags flags)
 #define GST_FLOW_EOS GST_FLOW_UNEXPECTED
 #define GST_FLOW_FLUSHING GST_FLOW_WRONG_STATE
 
+static inline GstBuffer *
+gst_buffer_new_wrapped (gpointer data, gsize size)
+{
+  GstBuffer * buffer = gst_buffer_new ();
+
+  GST_BUFFER_DATA (buffer) = GST_BUFFER_MALLOCDATA (buffer) = data;
+  GST_BUFFER_SIZE (buffer) = size;
+
+  return buffer;
+}
+
 #endif
 #endif /* GST_COMPAT_H */
