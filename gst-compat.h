@@ -223,5 +223,9 @@ gst_buffer_new_wrapped (gpointer data, gsize size)
   return buffer;
 }
 
+#define gst_adapter_map gst_adapter_peek
+#define gst_segment_do_seek gst_segment_set_seek
+#define gst_tag_list_new_empty gst_tag_list_new
+
 #endif
 #endif /* GST_COMPAT_H */

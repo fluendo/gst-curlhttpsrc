@@ -1,6 +1,11 @@
 2014-05-07  Josep Torra  <josep@fluendo.com>
 
 	* gst-compat.h:
+	Add few more replacements for 0.10.
+
+2014-05-07  Josep Torra  <josep@fluendo.com>
+
+	* gst-compat.h:
 	Add gst_buffer_new_wrapped replacement for 0.10.
 
 2014-04-02  Jorge Zapata  <jzapata@fluendo.com>
