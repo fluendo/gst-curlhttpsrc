@@ -1,3 +1,8 @@
+2014-05-12  Andoni Morales  <amorales@fluendo.com>
+
+	* gst-compat.h:
+	Fix compiler error casting from gpointer to guint8 *
+
 2014-05-07  Josep Torra  <josep@fluendo.com>
 
 	* gst-compat.h:

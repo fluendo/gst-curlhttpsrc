@@ -217,7 +217,7 @@ gst_buffer_new_wrapped (gpointer data, gsize size)
 {
   GstBuffer * buffer = gst_buffer_new ();
 
-  GST_BUFFER_DATA (buffer) = GST_BUFFER_MALLOCDATA (buffer) = data;
+  GST_BUFFER_DATA (buffer) = GST_BUFFER_MALLOCDATA (buffer) = (guint8 *) data;
   GST_BUFFER_SIZE (buffer) = size;
 
   return buffer;
