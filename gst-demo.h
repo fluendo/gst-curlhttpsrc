@@ -163,8 +163,8 @@ gstflu_demo_finish_audio_decoder_buffer (GstFluDemoStatistics * stats,
   if ((ret = gstflu_demo_check_audio_buffer (stats,
       GST_AUDIO_DECODER_SINK_PAD (dec), GST_AUDIO_DECODER_SRC_PAD (dec),
       gst_buffer_get_size (buf), GST_AUDIO_INFO_RATE (info),
-      GST_AUDIO_INFO_CHANNELS (info), GST_AUDIO_INFO_DEPTH (info))
-       == GST_FLOW_OK))
+      GST_AUDIO_INFO_CHANNELS (info), GST_AUDIO_INFO_DEPTH (info)))
+       == GST_FLOW_OK)
     ret = gst_audio_decoder_finish_frame (dec, buf, frames);
   else
     gst_buffer_unref (buf);
@@ -191,8 +191,8 @@ gstflu_demo_finish_video_decoder_frame (GstFluDemoStatistics * stats,
 {
   GstFlowReturn ret;
 
-  if ((ret = gstflu_demo_check_video_decoder_frame (stats, dec, frame)
-       == GST_FLOW_OK))
+  if ((ret = gstflu_demo_check_video_decoder_frame (stats, dec, frame))
+       == GST_FLOW_OK)
     ret = gst_video_decoder_finish_frame (dec, frame);
   else
     gst_video_decoder_drop_frame (dec, frame);
@@ -210,8 +210,8 @@ gstflu_demo_finish_audio_encoder_frame (GstFluDemoStatistics * stats,
   if ((ret = gstflu_demo_check_audio_buffer (stats,
       GST_AUDIO_ENCODER_SINK_PAD (enc), GST_AUDIO_ENCODER_SRC_PAD (enc),
       gst_buffer_get_size (buf), GST_AUDIO_INFO_RATE (info),
-      GST_AUDIO_INFO_CHANNELS (info), GST_AUDIO_INFO_DEPTH (info))
-       == GST_FLOW_OK))
+      GST_AUDIO_INFO_CHANNELS (info), GST_AUDIO_INFO_DEPTH (info)))
+       == GST_FLOW_OK)
     ret = gst_audio_encoder_finish_frame (enc, buf, samples);
   else
     gst_buffer_unref (buf);

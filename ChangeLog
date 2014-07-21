@@ -1,3 +1,11 @@
+2014-07-21  Xavi Artigas  <xartigas@fluendo.com>
+
+	* gst-demo.h:
+	Fix precedence of = and ==. This only triggered a problem when
+	compiling the h265 plugin, because it uses C++ and the result of
+	a == is a boolean, not an int which can be silently converted
+	to an enum.
+
 2014-06-19  Josep Torra  <josep@fluendo.com>
 
 	* gst-compat.h:
