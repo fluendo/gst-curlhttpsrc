@@ -1,3 +1,8 @@
+2014-09-26  Josep Torra  <josep@fluendo.com>
+
+	* gst-compat.h:
+	Add gst_event_has_name replacement for older GStreamer 0.10 versions.
+
 2014-07-21  Xavi Artigas  <xartigas@fluendo.com>
 
 	* gst-demo.h:

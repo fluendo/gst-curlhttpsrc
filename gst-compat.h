@@ -129,6 +129,19 @@ set_target_failed:
     gst_structure_get_int(stru,fn,(gint*)fv)
 #endif
 
+#if !GST_CHECK_VERSION(0,10,20)
+static inline gboolean
+gst_event_has_name (GstEvent * event, const gchar * name)
+{
+  g_return_val_if_fail (GST_IS_EVENT (event), FALSE);
+
+  if (event->structure == NULL)
+    return FALSE;
+
+  return gst_structure_has_name (event->structure, name);
+}
+#endif
+
 #if !GST_CHECK_VERSION(0,10,23)
 #define GST_BUFFER_FLAG_MEDIA1 (GST_MINI_OBJECT_FLAG_LAST << 5)
 #define GST_BUFFER_FLAG_MEDIA2 (GST_MINI_OBJECT_FLAG_LAST << 6)
