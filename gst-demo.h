@@ -61,7 +61,7 @@ gstflu_demo_setup_statistics (GstFluDemoStatistics * stats, GstPad * sink)
     goto q_out;
 
   gst_query_parse_duration (q, &fmt, &duration);
-  if (fmt == GST_FORMAT_TIME && GST_CLOCK_TIME_IS_VALID (duration)) {
+  if (fmt == GST_FORMAT_TIME && GST_CLOCK_TIME_IS_VALID ((guint64)duration)) {
     gstflu_demo_validate_duration (stats, duration);
   }
 

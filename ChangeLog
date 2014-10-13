@@ -1,5 +1,10 @@
 2014-10-13  Xavi Artigas  <xartigas@fluendo.com>
 
+	* gst-demo.h:
+	Fix warning
+
+2014-10-13  Xavi Artigas  <xartigas@fluendo.com>
+
 	* gst-compat.h:
 	Fix warning
 
