@@ -1,3 +1,8 @@
+2014-10-13  Xavi Artigas  <xartigas@fluendo.com>
+
+	* gst-compat.h:
+	Fix warning
+
 2014-10-03  Josep Torra  <josep@fluendo.com>
 
 	* m4/gst-cpu-tune.m4:

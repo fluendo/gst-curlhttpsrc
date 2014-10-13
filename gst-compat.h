@@ -189,7 +189,7 @@ gst_caps_steal_structure (GstCaps * caps, guint index)
   if (G_UNLIKELY (index >= caps->structs->len))
     return NULL;
 
-  s = g_ptr_array_remove_index (caps->structs, index);
+  s = (GstStructure *)g_ptr_array_remove_index (caps->structs, index);
   gst_structure_set_parent_refcount (s, NULL);
   return s;
 }
