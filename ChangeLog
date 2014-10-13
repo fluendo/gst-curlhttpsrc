@@ -1,5 +1,11 @@
 2014-10-13  Xavi Artigas  <xartigas@fluendo.com>
 
+	* gst-compat.h:
+	Fix even more warnings (this one, and the two previous commits,
+	are needed to build on Fedora5)
+
+2014-10-13  Xavi Artigas  <xartigas@fluendo.com>
+
 	* gst-demo.h:
 	Fix warning
 
