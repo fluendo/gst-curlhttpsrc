@@ -1,3 +1,8 @@
+2014-11-04  Josep Torra  <josep@fluendo.com>
+
+	* gst-compat.h:
+	Add missing backward compat definition.
+
 2014-10-13  Xavi Artigas  <xartigas@fluendo.com>
 
 	* gst-compat.h:

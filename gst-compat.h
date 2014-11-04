@@ -196,6 +196,7 @@ gst_caps_steal_structure (GstCaps * caps, guint index)
 #endif
 
 #if !GST_CHECK_VERSION(0,10,33)
+#define GST_MINI_OBJECT_FLAG_RESERVED1 (1<<1)
 #define GST_BUFFER_FLAG_MEDIA4 GST_MINI_OBJECT_FLAG_RESERVED1
 #endif
 
