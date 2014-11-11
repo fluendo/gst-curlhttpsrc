@@ -193,6 +193,9 @@ gst_caps_steal_structure (GstCaps * caps, guint index)
   gst_structure_set_parent_refcount (s, NULL);
   return s;
 }
+
+#define GST_TRACE_OBJECT(...) G_STMT_START{ }G_STMT_END
+#define GST_TRACE(...) G_STMT_START{ }G_STMT_END
 #endif
 
 #if !GST_CHECK_VERSION(0,10,33)
