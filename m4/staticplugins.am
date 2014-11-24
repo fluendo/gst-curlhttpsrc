@@ -32,7 +32,7 @@ $(GSTREAMER_STATIC_C):Makefile
 	@sed -i s/d3dvideosink/d3dsinkwrapper/g $(GSTREAMER_STATIC_C)
 
 define list-static-plugins-libs
-$(call libtool-link, $(GSTREAMER_STATIC_PLUGINS),$1,$(GSTREAMER_STATIC_PLUGINS_DIR))
+$(call libtool-link, $(GSTREAMER_STATIC_PLUGINS),$1,$(GSTREAMER_STATIC_PLUGINS_DIR),$2)
 endef
 
 CLEANFILES = $(GSTREAMER_STATIC_C)

@@ -8,11 +8,17 @@
 # -----------------------------------------------------------------------------
 # Function : libtool-link
 # Arguments: 1: list of GStreamer plugins to link
+#            2: list of Libraries
+#            3: search path for gstreamer static plugins
+#            4: Set to 1 to link GStreamer libs static
 # Returns  : a link command with all the dependencies resolved as done by libtool
 # Usage    : $(call libtool-link,<lib>)
 # -----------------------------------------------------------------------------
 define libtool-link
   $(call libtool-clear-vars)\
+  $(if $($4),\
+    $(eval __libtool.static_gst_lib := "yes"))\
+  $(eval __libtool.gst_plugins := $(patsubst %,gst%, $1))\
   $(eval __libtool.link.command := $(patsubst %,-lgst%, $1) $2 -L$3)\
   $(call __libtool_log, original link command = $(__libtool.link.command))\
   $(eval __libtool.link.Lpath := $(call libtool-get-search-paths,$(__libtool.link.command)))\
@@ -149,8 +155,12 @@ define libtool-get-all-libs
   $(eval __tmpvar.static_libs := $(empty))\
   $(eval __tmpvar.libs := $(empty))\
   $(foreach library,$(__libtool_libs.ordered),\
-    $(if $(findstring gst, $(library)),\
-      $(eval __tmpvar.static_libs_reverse += $(__libtool_libs.$(library).STATIC_LIB)),\
+    $(if $(findstring gst, $(library))\
+      $(if $(__libtool.static_gst_lib),\
+        $(eval __tmpvar.static_libs_reverse += $(__libtool_libs.$(library).STATIC_LIB)),\
+        $(if $(findstring $(library), $(__libtool.gst_plugins)),\
+          $(eval __tmpvar.static_libs_reverse += $(__libtool_libs.$(library).STATIC_LIB)),\
+          $(eval __tmpvar.libs += -l$(library)))),\
       $(eval __tmpvar.libs += -l$(library))\
     )\
     $(foreach dylib,$(__libtool_libs.$(library).LIBS),\
