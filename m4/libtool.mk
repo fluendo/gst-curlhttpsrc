@@ -16,8 +16,11 @@
 # -----------------------------------------------------------------------------
 define libtool-link
   $(call libtool-clear-vars)\
-  $(if $($4),\
-    $(eval __libtool.static_gst_lib := "yes"))\
+  $(if $(findstring 1, $4),\
+    $(call __libtool_log, Linking with static gstreamer $4)\
+    $(eval __libtool.static_gst_lib := "yes"),\
+    $(call __libtool_log, Linking with dynamic gstreamer $4)\
+  )\
   $(eval __libtool.gst_plugins := $(patsubst %,gst%, $1))\
   $(eval __libtool.link.command := $(patsubst %,-lgst%, $1) $2 -L$3)\
   $(call __libtool_log, original link command = $(__libtool.link.command))\
@@ -155,12 +158,17 @@ define libtool-get-all-libs
   $(eval __tmpvar.static_libs := $(empty))\
   $(eval __tmpvar.libs := $(empty))\
   $(foreach library,$(__libtool_libs.ordered),\
-    $(if $(findstring gst, $(library))\
+    $(if $(findstring gst, $(library)),\
+      $(call __libtool_log, Found GStreamer library $(library))\
       $(if $(__libtool.static_gst_lib),\
+        $(call __libtool_log, Linking lib as static)\
         $(eval __tmpvar.static_libs_reverse += $(__libtool_libs.$(library).STATIC_LIB)),\
         $(if $(findstring $(library), $(__libtool.gst_plugins)),\
+          $(call __libtoo Adding plugin to satic)\
           $(eval __tmpvar.static_libs_reverse += $(__libtool_libs.$(library).STATIC_LIB)),\
+          $(call __libtoo Adding library to dynamic)\
           $(eval __tmpvar.libs += -l$(library)))),\
+      $(call __libtoo Adding library to dynamic)\
       $(eval __tmpvar.libs += -l$(library))\
     )\
     $(foreach dylib,$(__libtool_libs.$(library).LIBS),\

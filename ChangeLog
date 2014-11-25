@@ -1,6 +1,11 @@
 2014-11-24  Andoni Morales <amorelas@fluendo.com>
 
 	* m4/libtool.mk:
+	Add missing coma and include more debug
+
+2014-11-24  Andoni Morales <amorelas@fluendo.com>
+
+	* m4/libtool.mk:
 	* m4/staticplugins.m4:
 	Add support for tunning GStreamer libraries
 	link type (static or dynamic)
