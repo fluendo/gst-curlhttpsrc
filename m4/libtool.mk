@@ -84,6 +84,7 @@ define libtool-parse-file
       $(call __libtool_log, library "$2" already parsed),\
     $(eval __libtool_libs.$2.STATIC_LIB := $(patsubst %.la,%.a,$1))\
     $(eval __libtool_libs.$2.DYN_LIB := -l$2)\
+    $(eval __libtool_libs.$2.FLAGS := $(call libtool-get-inherited-linker-flags,$1))\
     $(eval __tmpvar.$2.dep_libs := $(call libtool-get-dependency-libs,$1))\
     $(eval __tmpvar.$2.dep_libs := $(call libtool-replace-prefixes,$(__tmpvar.$2.dep_libs)))\
     $(eval __libtool_libs.$2.LIBS := $(call libtool-get-libs,$(__tmpvar.$2.dep_libs)))\
@@ -135,6 +136,7 @@ define libtool-gen-link-command
   $(eval __tmpvar.cmd += $(__libtool.link.Lpath))\
   $(eval __tmpvar.cmd += $(call libtool-get-libs-search-paths))\
   $(eval __tmpvar.cmd += $(call libtool-get-all-libs))\
+  $(eval __tmpvar.cmd += $(call libtool-get-flags))\
   $(eval __tmpvar.cmd += $(__libtool.link.shared_libs))\
   $(call __libtool_log, "Link Command:" $(__tmpvar.cmd))\
   $(__tmpvar.cmd)
@@ -151,6 +153,19 @@ define libtool-get-libs-search-paths
   )\
   $(call __libtool_log, search paths $(__tmpvar.paths))\
   $(strip $(__tmpvar.paths))
+endef
+
+define libtool-get-libs-search-paths
+  $(eval __tmpvar.flags := $(empty))\
+  $(foreach library,$(__libtool_libs.ordered),\
+    $(foreach flag,$(__libtool_libs.$(library).FLAGS),\
+      $(if $(findstring $(flag), $(__tmpvar.flags)), ,\
+        $(eval __tmpvar.flags += $(subst =,, $(flag)))\
+      )\
+    )\
+  )\
+  $(call __libtool_log, flags $(__tmpvar.flags))\
+  $(strip $(__tmpvar.flags))
 endef
 
 define libtool-get-all-libs
@@ -181,7 +196,7 @@ define libtool-get-all-libs
     $(call __libtool_log, static libs $(__tmpvar.static_libs))\
     $(eval __tmpvar.static_libs := $(path) $(__tmpvar.static_libs))\
   )\
-  $(strip $(__tmpvar.static_libs) $(__tmpvar.libs) )
+  $(strip $(__tmpvar.static_libs) $(__tmpvar.libs))
 endef
 
 define libtool-find-lib
@@ -214,6 +229,10 @@ endef
 
 define libtool-get-dependency-libs
   $(shell sed -n "s/^dependency_libs='\(.*\)'/\1/p" $1)
+endef
+
+define libtool-get-inherited-linker-flags
+  $(shell sed -n "s/^inherited_linker_flags='\(.*\)'/\1/p" $1)
 endef
 
 define libtool-replace-prefixes
