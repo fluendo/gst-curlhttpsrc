@@ -88,8 +88,9 @@ define libtool-parse-file
     $(eval __tmpvar.$2.dep_libs := $(call libtool-get-dependency-libs,$1))\
     $(eval __tmpvar.$2.dep_libs := $(call libtool-replace-prefixes,$(__tmpvar.$2.dep_libs)))\
     $(eval __libtool_libs.$2.LIBS := $(call libtool-get-libs,$(__tmpvar.$2.dep_libs)))\
-    $(eval __libtool_libs.$2.LIBS_SEARCH_PATH := $(call libtool-get-search-paths,$(__tmpvar.$2.dep_libs)))\
     $(call __libtool_log, $2.libs = $(__libtool_libs.$2.LIBS))\
+    $(eval __libtool_libs.$2.LIBS_SEARCH_PATH := $(call libtool-get-search-paths,$(__tmpvar.$2.dep_libs)))\
+    $(call __libtool_log, $2.libs_seach_path = $(__libtool_libs.$2.LIBS_SEARCH_PATH))\
     $(eval __tmpvar.$2.file_deps := $(call libtool-get-libtool-deps,$(__tmpvar.$2.dep_libs)))\
     $(eval __libtool_libs.$2.DEPS := $(foreach path,$(__tmpvar.$2.file_deps), $(call libtool-name-from-filepath,$(path))))\
     $(call __libtool_log, $2.deps = $(__libtool_libs.$2.DEPS)) \
@@ -155,7 +156,7 @@ define libtool-get-libs-search-paths
   $(strip $(__tmpvar.paths))
 endef
 
-define libtool-get-libs-search-paths
+define libtool-get-flags
   $(eval __tmpvar.flags := $(empty))\
   $(foreach library,$(__libtool_libs.ordered),\
     $(foreach flag,$(__libtool_libs.$(library).FLAGS),\

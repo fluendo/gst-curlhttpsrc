@@ -1,6 +1,11 @@
 2014-11-25  Andoni Morales <amorelas@fluendo.com>
 
 	* m4/libtool.mk:
+	Rename function with the same name
+
+2014-11-25  Andoni Morales <amorelas@fluendo.com>
+
+	* m4/libtool.mk:
 	Append flags at the end of the command
 
 2014-11-25  Andoni Morales <amorelas@fluendo.com>
