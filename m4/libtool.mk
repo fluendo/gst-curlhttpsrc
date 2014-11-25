@@ -136,8 +136,8 @@ define libtool-gen-link-command
   $(eval __tmpvar.cmd += $(__libtool.link.Lpath))\
   $(eval __tmpvar.cmd += $(call libtool-get-libs-search-paths))\
   $(eval __tmpvar.cmd += $(call libtool-get-all-libs))\
-  $(eval __tmpvar.cmd += $(call libtool-get-flags))\
   $(eval __tmpvar.cmd += $(__libtool.link.shared_libs))\
+  $(eval __tmpvar.cmd += $(call libtool-get-flags))\
   $(call __libtool_log, "Link Command:" $(__tmpvar.cmd))\
   $(__tmpvar.cmd)
 endef
