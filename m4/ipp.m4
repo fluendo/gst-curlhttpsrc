@@ -208,7 +208,7 @@ AC_DEFUN([AG_NEED_IPP],
       IPP_LIBS+=" -lirc -liomp5" 
     fi  
 
-    IPP_LIBS+=" -L${IPP_LIBDIR}"
+    IPP_LIBS=" -L${IPP_LIBDIR} $IPP_LIBS "
   fi
 
   dnl IPP libs are compiled with the buffer security check leading to
