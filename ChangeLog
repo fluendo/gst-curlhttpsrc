@@ -1,6 +1,11 @@
 2015-03-23  Josep Torra  <josep@fluendo.com>
 
 	* m4/ipp.m4:
+	Remove echo that wrongly slipped in with my previous commit.
+
+2015-03-23  Josep Torra  <josep@fluendo.com>
+
+	* m4/ipp.m4:
 	Allow specify an specific CPU family with an optionar argument.
 
 2015-03-21  Josep Torra  <josep@fluendo.com>

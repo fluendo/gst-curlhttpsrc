@@ -71,7 +71,6 @@ AC_DEFUN([AG_CHECK_IPP],
   fi
 
   dnl IPP is only valid for x86 based archs
-  echo "$2"
   if test -z $2 ; then
     IPP_CPU_FAMILY="${host_cpu}"
   else
