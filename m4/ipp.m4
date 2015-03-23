@@ -1,6 +1,7 @@
 dnl Detection of Intel Integrated Performance Primitives IPP
-dnl Usage: AG_CHEC_IPP([FUNCTION LIST PATH])
+dnl Usage: AG_CHEC_IPP([FUNCTION LIST PATH],[CPU_FAMILY])
 dnl FUNCTION LIST PATH is an optional argument
+dnl CPU_FAMILY is an optional argument to select an specific library variant
 AC_DEFUN([AG_CHECK_IPP],
 [
   BUILD_IN_MACOS=false
@@ -70,7 +71,14 @@ AC_DEFUN([AG_CHECK_IPP],
   fi
 
   dnl IPP is only valid for x86 based archs
-  case "x${host_cpu}" in
+  echo "$2"
+  if test -z $2 ; then
+    IPP_CPU_FAMILY="${host_cpu}"
+  else
+    IPP_CPU_FAMILY=$2
+  fi
+
+  case "x${IPP_CPU_FAMILY}" in
     xi?86)
       if test "x$IPP_ARCH" = "x11" ; then
         IPP_CPU="lp32"
@@ -142,12 +150,13 @@ AC_DEFUN([AG_CHECK_IPP],
 ])
 
 dnl Given a list of ipp libraries to link with, set the needed variables for building
-dnl Usage: AG_NEED_IPP([IPP LIBS], [FUNCTION LIST PATH])
+dnl Usage: AG_NEED_IPP([IPP LIBS], [FUNCTION LIST PATH], [CPU_FAMILY])
 dnl FUNCTION LIST PATH is an optional argument
+dnl CPU_FAMILY is an optional argument to select an specific library variant
 AC_DEFUN([AG_NEED_IPP],
 [
   HAVE_IPP=false
-  AG_CHECK_IPP($2)
+  AG_CHECK_IPP($2,$3)
   if test "x$BUILD_IN_WINDOWS" = "xtrue" ; then
     AR_EXT=.lib
     AR_PRE=
