@@ -3,18 +3,20 @@ AC_PREREQ([2.53])
 
 AC_INIT([gst-curlhttpsrc],[1.0.0])
 
-dnl required versions of gstreamer and plugins-base
-GST_REQUIRED=1.0.0
-GSTPB_REQUIRED=1.0.0
+AG_GST_INIT
 
 AC_CONFIG_SRCDIR([src/gstcurlhttpsrc.c])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 dnl required version of automake
 AM_INIT_AUTOMAKE([1.10])
 
 dnl enable mainainer mode by default
 AM_MAINTAINER_MODE([enable])
+
+dnl make aclocal work in maintainer mode
+AC_SUBST(ACLOCAL_AMFLAGS, "-I m4 -I common/m4")
 
 dnl check for tools (compiler etc.)
 AC_PROG_CC
@@ -23,40 +25,18 @@ dnl required version of libtool
 LT_PREREQ([2.2.6])
 LT_INIT
 
-dnl give error and exit if we don't have pkgconfig
-AC_CHECK_PROG(HAVE_PKGCONFIG, pkg-config, [ ], [
-  AC_MSG_ERROR([You need to have pkg-config installed!])
-])
+dnl Check for pkgconfig first
+AC_CHECK_PROG(HAVE_PKGCONFIG, pkg-config, yes, no)
 
-dnl Check for the required version of GStreamer core (and gst-plugins-base)
-dnl This will export GST_CFLAGS and GST_LIBS variables for use in Makefile.am
-dnl
-dnl If you need libraries from gst-plugins-base here, also add:
-dnl for libgstaudio-1.0: gstreamer-audio-1.0 >= $GST_REQUIRED
-dnl for libgstvideo-1.0: gstreamer-video-1.0 >= $GST_REQUIRED
-dnl for libgsttag-1.0: gstreamer-tag-1.0 >= $GST_REQUIRED
-dnl for libgstpbutils-1.0: gstreamer-pbutils-1.0 >= $GST_REQUIRED
-dnl for libgstfft-1.0: gstreamer-fft-1.0 >= $GST_REQUIRED
-dnl for libgstinterfaces-1.0: gstreamer-interfaces-1.0 >= $GST_REQUIRED
-dnl for libgstrtp-1.0: gstreamer-rtp-1.0 >= $GST_REQUIRED
-dnl for libgstrtsp-1.0: gstreamer-rtsp-1.0 >= $GST_REQUIRED
-dnl etc.
-PKG_CHECK_MODULES(GST, [
-  gstreamer-1.0 >= $GST_REQUIRED
-  gstreamer-base-1.0 >= $GST_REQUIRED
-  gstreamer-controller-1.0 >= $GST_REQUIRED
-], [
-  AC_SUBST(GST_CFLAGS)
-  AC_SUBST(GST_LIBS)
-], [
-  AC_MSG_ERROR([
-      You need to install or upgrade the GStreamer development
-      packages on your system. On debian-based systems these are
-      libgstreamer1.0-dev and libgstreamer-plugins-base1.0-dev.
-      on RPM-based systems gstreamer1.0-devel, libgstreamer1.0-devel
-      or similar. The minimum version required is $GST_REQUIRED.
-  ])
-])
+dnl Give error and exit if we don't have pkgconfig
+if test "x$HAVE_PKGCONFIG" = "xno"; then
+  AC_MSG_ERROR([you need to have pkgconfig installed !])
+fi
+
+AG_GST_DETECT_VERSION([1.0.0], [0.10.3])
+AG_GST_CHECK_GST($GST_MAJORMINOR, [$GST_REQ])
+AG_GST_CHECK_GST_BASE($GST_MAJORMINOR, [$GST_REQ])
+AG_GST_CHECK_GST_CONTROLLER($GST_MAJORMINOR, [$GST_REQ])
 
 dnl Check for libcurl-dev
 dnl 
@@ -86,6 +66,9 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([ ], [ ])], [
   AC_MSG_RESULT([no])
 ])
 
+dnl make GST_MAJORMINOR available in Makefile.am
+AC_SUBST(GST_MAJORMINOR)
+
 dnl set the plugindir where plugins should be installed (for src/Makefile.am)
 if test "x${prefix}" = "x$HOME"; then
   plugindir="$HOME/.gstreamer-1.0/plugins"
@@ -100,4 +83,12 @@ AC_SUBST(GST_PLUGIN_LDFLAGS)
 
 AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT
+
+echo "
+$PACKAGE-$VERSION
+
+        prefix:                           ${prefix}
+        compiler:                         ${CC}
+        Building for GStreamer-${GST_MAJORMINOR}
+"
 
