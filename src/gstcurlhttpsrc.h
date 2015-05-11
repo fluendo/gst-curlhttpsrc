@@ -54,7 +54,10 @@
 #ifndef GSTCURLHTTPSRC_H_
 #define GSTCURLHTTPSRC_H_
 
-#include <gst/gst.h>
+#include "gst-compat.h"
+#include "gst-demo.h"
+#include "gst-fluendo.h"
+
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -111,7 +114,11 @@ typedef struct _GstCurlHttpSrcQueueElement GstCurlHttpSrcQueueElement;
 struct _GstCurlHttpSrcMultiTaskContext
 {
   GstTask     *task;
+#if GST_CHECK_VERSION(1,0,0)
   GRecMutex   task_rec_mutex;
+#else
+  GStaticRecMutex task_rec_mutex;
+#endif
   GMutex      mutex;
   guint       refcount;
   GCond       signal;
@@ -261,6 +268,8 @@ enum
 curl_version_info_data *gst_curl_http_src_curl_capabilities;
 gfloat pref_http_ver;
 gchar *gst_curl_http_src_default_useragent;
+
+GType gst_curl_http_src_get_type (void);
 
 G_END_DECLS
 #endif /* GSTCURLHTTPSRC_H_ */

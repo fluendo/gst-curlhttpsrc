@@ -121,16 +121,6 @@ static gboolean gst_curl_http_src_query (GstBaseSrc * bsrc, GstQuery * query);
 static gboolean gst_curl_http_src_get_content_length (GstBaseSrc * bsrc,
     guint64 * size);
 
-/* URI Handler functions */
-static void gst_curl_http_src_uri_handler_init (gpointer g_iface,
-    gpointer iface_data);
-static guint gst_curl_http_src_urihandler_get_type (GType type);
-static const gchar *const *gst_curl_http_src_urihandler_get_protocols (GType
-    type);
-static gchar *gst_curl_http_src_urihandler_get_uri (GstURIHandler * handler);
-static gboolean gst_curl_http_src_urihandler_set_uri (GstURIHandler * handler,
-    const gchar * uri, GError ** error);
-
 /* GstTask functions */
 static void gst_curl_http_src_curl_multi_loop (gpointer thread_data);
 static CURL *gst_curl_http_src_create_easy_handle (GstCurlHttpSrc * s);
@@ -145,9 +135,145 @@ static char *gst_curl_http_src_strcasestr (const char *haystack,
     const char *needle);
 
 #define gst_curl_http_src_parent_class parent_class
+
+/*----------------------------------------------------------------------------*
+ *                            The URI interface                               *
+ *----------------------------------------------------------------------------*/
+static GstURIType
+#if GST_CHECK_VERSION(1,0,0)
+gst_curl_http_src_urihandler_get_type (GType type)
+#else
+gst_curl_http_src_urihandler_get_type (void)
+#endif
+{
+  return GST_URI_SRC;
+}
+
+#if GST_CHECK_VERSION(1,0,0)
+static const gchar *const *
+gst_curl_http_src_urihandler_get_protocols (GType type)
+{
+  static const gchar *protocols[] = { "http", "https", NULL };
+
+  return protocols;
+}
+
+#else
+static gchar **
+gst_curl_http_src_urihandler_get_protocols (void)
+{
+  static gchar *protocols[] = { "http", "https", NULL };
+
+  return protocols;
+}
+#endif
+
+#if GST_CHECK_VERSION(1,0,0)
+static gchar *
+#else
+static const gchar *
+#endif
+gst_curl_http_src_urihandler_get_uri (GstURIHandler * handler)
+{
+  gchar* ret;
+  GstCurlHttpSrc *source;
+
+  g_return_val_if_fail (GST_IS_URI_HANDLER (handler), FALSE);
+  source = GST_CURLHTTPSRC (handler);
+
+  GSTCURL_FUNCTION_ENTRY (source);
+
+  g_mutex_lock(source->uri_mutex);
+#if GST_CHECK_VERSION(1,0,0)
+  ret = g_strdup (source->uri);
+#else
+  ret = source->uri;
+#endif
+  g_mutex_unlock(source->uri_mutex);
+
+  GSTCURL_FUNCTION_EXIT (source);
+  return ret;
+}
+
+static gboolean
+#if GST_CHECK_VERSION(1,0,0)
+gst_curl_http_src_urihandler_set_uri (GstURIHandler * handler,
+    const gchar * uri, GError ** error)
+#else
+gst_curl_http_src_urihandler_set_uri (GstURIHandler * handler,
+    const gchar * uri)
+#endif
+{
+  GstCurlHttpSrc *source = GST_CURLHTTPSRC (handler);
+  GSTCURL_FUNCTION_ENTRY (source);
+
+  g_return_val_if_fail (GST_IS_URI_HANDLER (handler), FALSE);
+  g_return_val_if_fail (uri != NULL, FALSE);
+
+  g_mutex_lock(source->uri_mutex);
+
+  if (source->uri != NULL) {
+    GST_DEBUG_OBJECT (source,
+        "URI already present as %s, updating to new URI %s", source->uri, uri);
+    g_free (source->uri);
+    source->end_of_message = FALSE;
+  }
+
+  source->uri = g_strdup (uri);
+  if (source->uri == NULL) {
+    return FALSE;
+  }
+
+  g_mutex_unlock(source->uri_mutex);
+
+  GSTCURL_FUNCTION_EXIT (source);
+  return TRUE;
+}
+
+static void
+gst_curl_http_src_uri_handler_init (gpointer g_iface, gpointer iface_data)
+{
+  GstURIHandlerInterface *uri_iface = (GstURIHandlerInterface *) g_iface;
+
+  uri_iface->get_type = gst_curl_http_src_urihandler_get_type;
+  uri_iface->get_protocols = gst_curl_http_src_urihandler_get_protocols;
+  uri_iface->get_uri = gst_curl_http_src_urihandler_get_uri;
+  uri_iface->set_uri = gst_curl_http_src_urihandler_set_uri;
+}
+
+/*----------------------------------------------------------------------------*
+ *                              The src class                                 *
+ *----------------------------------------------------------------------------*/
+#if GST_CHECK_VERSION(1,0,0)
+
 G_DEFINE_TYPE_WITH_CODE (GstCurlHttpSrc, gst_curl_http_src, GST_TYPE_PUSH_SRC,
     G_IMPLEMENT_INTERFACE (GST_TYPE_URI_HANDLER,
         gst_curl_http_src_uri_handler_init));
+
+#else
+
+static gboolean
+gst_curl_http_src_interface_supported (GstImplementsInterface * iface, GType type)
+{
+  if (type == GST_TYPE_URI_HANDLER)
+    return TRUE;
+  else
+    return FALSE;
+}
+
+static void
+gst_curl_http_src_interface_init (GstImplementsInterfaceClass * klass)
+{
+  klass->supported = gst_curl_http_src_interface_supported;
+}
+
+G_DEFINE_TYPE_WITH_CODE (GstCurlHttpSrc, gst_curl_http_src, GST_TYPE_PUSH_SRC,
+    G_IMPLEMENT_INTERFACE (GST_TYPE_IMPLEMENTS_INTERFACE,
+        gst_curl_http_src_interface_init);
+    G_IMPLEMENT_INTERFACE (GST_TYPE_URI_HANDLER,
+        gst_curl_http_src_uri_handler_init));
+
+#endif
 
 static void
 gst_curl_http_src_class_init (GstCurlHttpSrcClass * klass)
@@ -347,9 +473,17 @@ gst_curl_http_src_class_init (GstCurlHttpSrcClass * klass)
 
   g_mutex_init(&klass->multi_task_context.mutex);
   g_cond_init(&klass->multi_task_context.signal);
+#if GST_CHECK_VERSION(1,0,0)
   g_rec_mutex_init(&klass->multi_task_context.task_rec_mutex);
+#else
+  g_static_rec_mutex_init (&klass->multi_task_context.task_rec_mutex);
+#endif
 
+#if GST_CHECK_VERSION(1,0,0)
   gst_element_class_set_static_metadata (gstelement_class,
+#else
+  gst_element_class_set_details_simple (gstelement_class,
+#endif
       "HTTP Client Source using libcURL",
       "Source/Network",
       "Receiver data as a client over a network via HTTP using cURL",
@@ -602,7 +736,9 @@ gst_curl_http_src_init (GstCurlHttpSrc * source)
   source->total_retries = GSTCURL_HANDLE_DEFAULT_RETRIES;
 
   gst_caps_replace(&source->caps, NULL);
+#if GST_CHECK_VERSION(1,0,0)
   gst_base_src_set_automatic_eos (GST_BASE_SRC (source), FALSE);
+#endif
 
   source->proxy_uri = g_strdup (g_getenv ("http_proxy"));
   source->no_proxy_list = g_strdup (g_getenv ("no_proxy"));
@@ -647,9 +783,15 @@ gst_curl_http_src_ref_multi (GstCurlHttpSrc *src) {
 #endif
 
     /* Start the thread */
+#if GST_CHECK_VERSION(1,0,0)
     klass->multi_task_context.task = gst_task_new (
             (GstTaskFunction) gst_curl_http_src_curl_multi_loop,
             (gpointer) &klass->multi_task_context, NULL);
+#else
+    klass->multi_task_context.task = gst_task_create (
+            (GstTaskFunction) gst_curl_http_src_curl_multi_loop,
+            (gpointer) &klass->multi_task_context);
+#endif
     gst_task_set_lock (klass->multi_task_context.task,
                        &klass->multi_task_context.task_rec_mutex);
     if (gst_task_start (klass->multi_task_context.task) == FALSE) {
@@ -939,7 +1081,6 @@ gst_curl_http_src_handle_response (GstCurlHttpSrc * src, GstBuffer ** buf)
   glong curl_info_long;
   gdouble curl_info_dbl;
   gchar *redirect_url;
-  GstMapInfo info;
   size_t lena,lenb;
   GstBaseSrc *basesrc;
   GSTCURL_FUNCTION_ENTRY (src);
@@ -1048,10 +1189,21 @@ gst_curl_http_src_handle_response (GstCurlHttpSrc * src, GstBuffer ** buf)
    * in the buffer.
    */
   if (ret == GST_FLOW_OK) {
+    guint8 *data;
+#if GST_CHECK_VERSION(1,0,0)
+    GstMapInfo info;
+
     *buf = gst_buffer_new_allocate (NULL, src->len, NULL);
     gst_buffer_map (*buf, &info, GST_MAP_READWRITE);
-    memcpy (info.data, src->msg, (size_t) src->len);
+    data = info.data;
+#else
+    *buf = gst_buffer_new_and_alloc (src->len);
+    data = GST_BUFFER_DATA (*buf);
+#endif
+    memcpy (data, src->msg, (size_t) src->len);
+#if GST_CHECK_VERSION(1,0,0)
     gst_buffer_unmap (*buf, &info);
+#endif
   }
 
   /*
@@ -1090,8 +1242,14 @@ gst_curl_http_src_handle_response (GstCurlHttpSrc * src, GstBuffer ** buf)
       basesrc = GST_BASE_SRC_CAST (src);
       basesrc->segment.duration = curl_info_dbl;
       src->content_length = (guint64) curl_info_dbl;
+#if GST_CHECK_VERSION(1,0,0)
       gst_element_post_message (GST_ELEMENT (src),
                           gst_message_new_duration_changed (GST_OBJECT (src)));
+#else
+      gst_element_post_message (GST_ELEMENT (src),
+                          gst_message_new_duration (GST_OBJECT (src),
+                          GST_FORMAT_BYTES, GST_CLOCK_TIME_NONE));
+#endif
     }
   }
 
@@ -1107,6 +1265,7 @@ gst_curl_http_src_handle_response (GstCurlHttpSrc * src, GstBuffer ** buf)
 static gboolean
 gst_curl_http_src_negotiate_caps (GstCurlHttpSrc * src)
 {
+#if 0
   if (src->headers.content_type != NULL) {
     if (src->caps) {
       GST_INFO_OBJECT (src, "Setting cap on Content-Type of %s",
@@ -1123,6 +1282,7 @@ gst_curl_http_src_negotiate_caps (GstCurlHttpSrc * src)
   else {
     GST_INFO_OBJECT (src, "No caps have been set, continue.");
   }
+#endif
   return TRUE;
 }
 
@@ -1222,9 +1382,11 @@ gst_curl_http_src_query (GstBaseSrc * bsrc, GstQuery * query)
   switch (GST_QUERY_TYPE (query)) {
     case GST_QUERY_URI:
       gst_query_set_uri (query, src->uri);
+#if GST_CHECK_VERSION(1,0,0)
       if (src->redirect_uri != NULL) {
         gst_query_set_uri_redirection (query, src->redirect_uri);
       }
+#endif
       ret = TRUE;
       break;
     default:
@@ -1251,80 +1413,6 @@ gst_curl_http_src_get_content_length (GstBaseSrc * bsrc, guint64 * size)
   GST_DEBUG_OBJECT (src,
                   "No content length has yet been set, or there was an error!");
   return FALSE;
-}
-
-static void
-gst_curl_http_src_uri_handler_init (gpointer g_iface, gpointer iface_data)
-{
-  GstURIHandlerInterface *uri_iface = (GstURIHandlerInterface *) g_iface;
-
-  uri_iface->get_type = gst_curl_http_src_urihandler_get_type;
-  uri_iface->get_protocols = gst_curl_http_src_urihandler_get_protocols;
-  uri_iface->get_uri = gst_curl_http_src_urihandler_get_uri;
-  uri_iface->set_uri = gst_curl_http_src_urihandler_set_uri;
-}
-
-static guint
-gst_curl_http_src_urihandler_get_type (GType type)
-{
-  return GST_URI_SRC;
-}
-
-static const gchar *const *
-gst_curl_http_src_urihandler_get_protocols (GType type)
-{
-  static const gchar *protocols[] = { "http", "https", NULL };
-
-  return protocols;
-}
-
-static gchar *
-gst_curl_http_src_urihandler_get_uri (GstURIHandler * handler)
-{
-  gchar* ret;
-  GstCurlHttpSrc *source;
-
-  g_return_val_if_fail (GST_IS_URI_HANDLER (handler), FALSE);
-  source = GST_CURLHTTPSRC (handler);
-
-  GSTCURL_FUNCTION_ENTRY (source);
-
-  g_mutex_lock(source->uri_mutex);
-  ret = g_strdup (source->uri);
-  g_mutex_unlock(source->uri_mutex);
-
-  GSTCURL_FUNCTION_EXIT (source);
-  return ret;
-}
-
-static gboolean
-gst_curl_http_src_urihandler_set_uri (GstURIHandler * handler,
-    const gchar * uri, GError ** error)
-{
-  GstCurlHttpSrc *source = GST_CURLHTTPSRC (handler);
-  GSTCURL_FUNCTION_ENTRY (source);
-
-  g_return_val_if_fail (GST_IS_URI_HANDLER (handler), FALSE);
-  g_return_val_if_fail (uri != NULL, FALSE);
-
-  g_mutex_lock(source->uri_mutex);
-
-  if (source->uri != NULL) {
-    GST_DEBUG_OBJECT (source,
-        "URI already present as %s, updating to new URI %s", source->uri, uri);
-    g_free (source->uri);
-    source->end_of_message = FALSE;
-  }
-
-  source->uri = g_strdup (uri);
-  if (source->uri == NULL) {
-    return FALSE;
-  }
-
-  g_mutex_unlock(source->uri_mutex);
-
-  GSTCURL_FUNCTION_EXIT (source);
-  return TRUE;
 }
 
 /*****************************************************************************
@@ -1660,8 +1748,9 @@ curlhttpsrc_init (GstPlugin * curlhttpsrc)
 #define PACKAGE "CurlHttpSrc"
 #endif
 
-GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
+FLUENDO_PLUGIN_DEFINE (GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
+    "curlhttpsrc",
     curlhttpsrc,
     "UriHandler for libcURL",
     curlhttpsrc_init,
