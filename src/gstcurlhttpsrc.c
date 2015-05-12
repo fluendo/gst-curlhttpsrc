@@ -153,7 +153,7 @@ gst_curl_http_src_urihandler_get_type (void)
 static const gchar *const *
 gst_curl_http_src_urihandler_get_protocols (GType type)
 {
-  static const gchar *protocols[] = { "http", "https", NULL };
+  static const gchar *protocols[] = { PROTOCOLS, NULL };
 
   return protocols;
 }
@@ -162,7 +162,7 @@ gst_curl_http_src_urihandler_get_protocols (GType type)
 static gchar **
 gst_curl_http_src_urihandler_get_protocols (void)
 {
-  static gchar *protocols[] = { "http", "https", NULL };
+  static gchar *protocols[] = { PROTOCOLS, NULL };
 
   return protocols;
 }

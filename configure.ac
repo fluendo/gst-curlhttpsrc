@@ -81,6 +81,15 @@ dnl set proper LDFLAGS for plugins
 GST_PLUGIN_LDFLAGS='-module -avoid-version -export-symbols-regex [_]*\(gst_\|Gst\|GST_\).*'
 AC_SUBST(GST_PLUGIN_LDFLAGS)
 
+dnl Option to enable a specific protocol
+AC_ARG_WITH([protocols],
+            [AS_HELP_STRING([--with-protocols],
+              [Set specific protocols  @<:@default="https","http"@:>@])],
+            [],
+            [with_protocols="\"https\", \"http\""])
+
+AC_DEFINE_UNQUOTED([PROTOCOLS], [$with_protocols], [Protocols to register with curl])
+
 AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT
 
@@ -90,5 +99,6 @@ $PACKAGE-$VERSION
         prefix:                           ${prefix}
         compiler:                         ${CC}
         Building for GStreamer-${GST_MAJORMINOR}
+	Protocols to use                  ${with_protocols}
 "
 
