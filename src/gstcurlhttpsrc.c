@@ -974,7 +974,7 @@ gst_curl_http_src_handle_response (GstCurlHttpSrc * src, GstBuffer ** buf)
   gdouble curl_info_dbl;
   gchar *redirect_url;
   size_t lena,lenb;
-  GstBaseSrc *basesrc;
+
   GSTCURL_FUNCTION_ENTRY (src);
 
   /* Get back the return code for the session */
@@ -1094,32 +1094,6 @@ gst_curl_http_src_handle_response (GstCurlHttpSrc * src, GstBuffer ** buf)
       GST_INFO_OBJECT(src, "Got a redirect to %s, setting as redirect URI",
                       redirect_url);
       src->redirect_uri = g_strdup(redirect_url);
-    }
-  }
-
-  /*
-   * Get the Content-Length to tell upstream elements the "duration" of this
-   * downloaded item.
-   */
-  if(curl_easy_getinfo(src->curl_handle, CURLINFO_CONTENT_LENGTH_DOWNLOAD,
-                       &curl_info_dbl) == CURLE_OK) {
-    if (curl_info_dbl == -1) {
-      GST_WARNING_OBJECT(src,
-                         "No Content-Length was specified in the response.");
-    }
-    else {
-      GST_INFO_OBJECT(src, "Content-Length was given as %.0f", curl_info_dbl);
-      basesrc = GST_BASE_SRC_CAST (src);
-      basesrc->segment.duration = curl_info_dbl;
-      src->content_length = (guint64) curl_info_dbl;
-#if GST_CHECK_VERSION(1,0,0)
-      gst_element_post_message (GST_ELEMENT (src),
-                          gst_message_new_duration_changed (GST_OBJECT (src)));
-#else
-      gst_element_post_message (GST_ELEMENT (src),
-                          gst_message_new_duration (GST_OBJECT (src),
-                          GST_FORMAT_BYTES, GST_CLOCK_TIME_NONE));
-#endif
     }
   }
 
@@ -1340,6 +1314,32 @@ gst_curl_http_src_get_header (void *header, size_t size, size_t nmemb,
       GST_INFO_OBJECT (s, "Got Content-Type of %s", s->headers.content_type);
     }
   }
+
+  substr = gst_curl_http_src_strcasestr (header, "Content-Length: ");
+  if (substr != NULL) {
+    GstBaseSrc *basesrc;
+    guint64 clen;
+
+    substr += 16;
+    len = (size * nmemb) - 16;
+    clen = g_ascii_strtoull (substr, NULL, 10);
+
+    GST_INFO_OBJECT(src, "Content-Length was given as %" G_GUINT64_FORMAT, clen);
+    basesrc = GST_BASE_SRC_CAST (s);
+    basesrc->segment.duration = clen;
+    s->content_length = clen;
+#if GST_CHECK_VERSION(1,0,0)
+    gst_element_post_message (GST_ELEMENT (s),
+        gst_message_new_duration_changed (GST_OBJECT (s)));
+#else
+    gst_element_post_message (GST_ELEMENT (s),
+        gst_message_new_duration (GST_OBJECT (s),
+            GST_FORMAT_BYTES, GST_CLOCK_TIME_NONE));
+#endif
+  }
+
+  /* TODO check if we can seek */
+
   return size * nmemb;
 }
 
