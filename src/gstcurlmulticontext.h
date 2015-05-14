@@ -17,9 +17,11 @@ struct _GstCurlMultiContextSource
   GMutex mutex;
   GCond signal;
   CURL *easy_handle;
+  /* where to store the bytes */
   GstAdapter *adapter;
-  GstFlowReturn flow;
+  /* an error happened on the info_get() */
   gboolean error;
+  /* the element request a cancel on the handle */
   gboolean cancel;
 };
 
