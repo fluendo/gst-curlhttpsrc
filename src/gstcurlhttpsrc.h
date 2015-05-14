@@ -127,6 +127,8 @@ struct _GstCurlHttpSrc
 
   /* < private > */
   GMutex *uri_mutex; /* Make the URIHandler get/set thread safe */
+
+  GstCurlMultiContextSource context;
   /*
    * Things to tell libcURL about to build up the request message.
    */

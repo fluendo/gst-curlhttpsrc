@@ -796,6 +796,11 @@ gst_curl_http_src_init (GstCurlHttpSrc * source)
   source->uri_mutex = g_new (GMutex, 1);
   g_mutex_init (source->uri_mutex);
 
+  /* Initialize the context */
+  g_mutex_init (&source->context.mutex);
+  g_cond_init (&source->context.signal);
+  source->context.adapter = gst_adapter_new ();
+
   GSTCURL_FUNCTION_EXIT (source);
 }
 
@@ -815,38 +820,47 @@ gst_curl_http_src_finalize (GObject *obj)
 static GstFlowReturn
 gst_curl_http_src_create (GstPushSrc * psrc, GstBuffer ** outbuf)
 {
-  GstFlowReturn ret;
   GstCurlHttpSrc *src = GST_CURLHTTPSRC (psrc);
-  GSTCURL_FUNCTION_ENTRY (src);
-  ret = GST_FLOW_OK;
+  GstCurlHttpSrcClass *klass;
 
+  klass = G_TYPE_INSTANCE_GET_CLASS (src, GST_TYPE_CURL_HTTP_SRC,
+                                     GstCurlHttpSrcClass);
+  GSTCURL_FUNCTION_ENTRY (src);
+
+  /* do every check locked */
+  g_mutex_lock (&src->context.mutex);
+
+  /* have we finished already? */
   if (src->end_of_message == TRUE) {
     GST_DEBUG_OBJECT (src, "Full body received, signalling EOS for URI %s.",
         src->uri);
     src->end_of_message = FALSE;
+    g_mutex_unlock (&src->context.mutex);
     return GST_FLOW_EOS;
   }
 
-  /* Create the easy handle */
-  /* Create the main loop for this new handle */
-  /* start it */
-  /* lock the main loop */
-  /* check that we have or either an error or data */
-  /* Process the easy handle */
+  /* create the handle if we dont have one already */
+  if (!src->context.easy_handle) {
+    src->context.easy_handle = gst_curl_http_src_create_easy_handle (src);
+    gst_curl_multi_context_add_source (&klass->multi_task_context, src->context.easy_handle);
+  }
 
-  src->retries_remaining = src->total_retries;
+  /* check that we have data */
+  while (!gst_adapter_available_fast (src->context.adapter) && !src->context.error) {
+    g_cond_wait (&src->context.signal, &src->context.mutex);
+  }
 
-  /* If total_retries is -1, it's infinite so the value of retries_remaining
-   * could be 0xDEADBEEF for all we care, it makes no difference. */
-  while((src->retries_remaining >= 0) || (src->total_retries == -1)) {
-    src->retries_remaining--;
+  if (src->context.error) {
+    g_mutex_unlock (&src->context.mutex);
+    return GST_FLOW_ERROR;
+  }
 
-    src->curl_handle = gst_curl_http_src_create_easy_handle (src);
+  *outbuf = gst_adapter_take_buffer (src->context.adapter,
+      gst_adapter_available (src->context.adapter));
 
-    if (gst_curl_http_src_make_request (src) == FALSE) {
-      return GST_FLOW_ERROR;
-    }
+  g_mutex_unlock (&src->context.mutex);
 
+#if 0
     ret = gst_curl_http_src_handle_response (src, outbuf);
 
     gst_curl_http_src_destroy_easy_handle (src);
@@ -867,8 +881,9 @@ gst_curl_http_src_create (GstPushSrc * psrc, GstBuffer ** outbuf)
   src->headers.content_type = NULL;
   src->len = 0;
 
+#endif
   GSTCURL_FUNCTION_EXIT (src);
-  return ret;
+  return GST_FLOW_OK;
 }
 
 /*
@@ -963,6 +978,7 @@ gst_curl_http_src_create_easy_handle (GstCurlHttpSrc * s)
   curl_easy_setopt (handle, CURLOPT_WRITEFUNCTION,
                     gst_curl_http_src_get_chunks);
   curl_easy_setopt (handle, CURLOPT_WRITEDATA, s);
+  curl_easy_setopt (handle, CURLOPT_PRIVATE, &s->context);
 
   GSTCURL_FUNCTION_EXIT (s);
   return handle;
@@ -1139,28 +1155,6 @@ gst_curl_http_src_handle_response (GstCurlHttpSrc * src, GstBuffer ** buf)
   }
 
   /*
-   * If the returned response has a body that we want to forward on, fill
-   * in the buffer.
-   */
-  if (ret == GST_FLOW_OK) {
-    guint8 *data;
-#if GST_CHECK_VERSION(1,0,0)
-    GstMapInfo info;
-
-    *buf = gst_buffer_new_allocate (NULL, src->len, NULL);
-    gst_buffer_map (*buf, &info, GST_MAP_READWRITE);
-    data = info.data;
-#else
-    *buf = gst_buffer_new_and_alloc (src->len);
-    data = GST_BUFFER_DATA (*buf);
-#endif
-    memcpy (data, src->msg, (size_t) src->len);
-#if GST_CHECK_VERSION(1,0,0)
-    gst_buffer_unmap (*buf, &info);
-#endif
-  }
-
-  /*
    * Check for any redirection that happened. If the result of
    * CURLINFO_EFFECTIVE_URL is NULL, then the originally supplied URL was used
    * to retrieve the content. Otherwise, a redirected URL was used, and this
@@ -1329,6 +1323,12 @@ gst_curl_http_src_cleanup_instance(GstCurlHttpSrc *src)
   src->msg = NULL;
   g_free(src->headers.content_type);
   src->headers.content_type = NULL;
+
+  /* destroy the context */
+  if (src->context.adapter) {
+    g_object_unref (src->context.adapter);
+    src->context.adapter = NULL;
+  }
 }
 
 static gboolean
@@ -1465,18 +1465,45 @@ gst_curl_http_src_get_chunks (void *chunk, size_t size, size_t nmemb,
     void * src)
 {
   GstCurlHttpSrc * s = src;
-  size_t new_len = s->len + size * nmemb;
+  GstBuffer *buf;
+#if GST_CHECK_VERSION(1,0,0)
+  GstMapInfo info;
+#endif
+  size_t len = size * nmemb;
+  guint8 *data;
+
   GST_TRACE_OBJECT (s,
-      "Received curl chunk for URI %s of size %d, new total size %d", s->uri,
-      (int) (size * nmemb), (int) new_len);
-  s->msg = realloc (s->msg, (new_len + 1) * sizeof (char));
-  if (s->msg == NULL) {
-    GST_ERROR_OBJECT (s, "Realloc for cURL response message failed!\n");
+      "Received curl chunk for URI %s of size %d", s->uri,
+      (int) (size * nmemb));
+
+  g_mutex_lock (&s->context.mutex);
+
+  if (s->context.cancel) {
+    GST_DEBUG_OBJECT (s, "Stopping the downloading");
+    g_mutex_unlock (&s->context.mutex);
     return 0;
   }
-  memcpy (s->msg + s->len, chunk, size * nmemb);
-  s->len = new_len;
-  return size * nmemb;
+
+  /* pick up the data */
+#if GST_CHECK_VERSION(1,0,0)
+  buf = gst_buffer_new_allocate (NULL, len, NULL);
+  gst_buffer_map (buf, &info, GST_MAP_READWRITE);
+  data = info.data;
+#else
+  buf = gst_buffer_new_and_alloc (len);
+  data = GST_BUFFER_DATA (buf);
+#endif
+  memcpy (data, chunk, len);
+#if GST_CHECK_VERSION(1,0,0)
+  gst_buffer_unmap (buf, &info);
+#endif
+
+  GST_DEBUG_OBJECT (s, "Data received");
+  gst_adapter_push (s->context.adapter, buf);
+  g_cond_signal (&s->context.signal);
+  g_mutex_unlock (&s->context.mutex);
+
+  return len;
 }
 
 /*****************************************************************************

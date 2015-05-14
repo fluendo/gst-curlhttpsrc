@@ -9,7 +9,19 @@
 
 #include "gstcurldefaults.h"
 
+typedef struct _GstCurlMultiContextSource GstCurlMultiContextSource;
 typedef struct _GstCurlMultiContext GstCurlMultiContext;
+
+struct _GstCurlMultiContextSource
+{
+  GMutex mutex;
+  GCond signal;
+  CURL *easy_handle;
+  GstAdapter *adapter;
+  GstFlowReturn flow;
+  gboolean error;
+  gboolean cancel;
+};
 
 struct _GstCurlMultiContext
 {
