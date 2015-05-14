@@ -5,7 +5,8 @@
 #include "gst-demo.h"
 #include "gst-fluendo.h"
 
-#include "gstcurlhttpsrc.h"
+#include <curl/curl.h>
+
 #include "gstcurldefaults.h"
 
 typedef struct _GstCurlMultiContext GstCurlMultiContext;
@@ -30,7 +31,7 @@ struct _GstCurlMultiContext
 void gst_curl_multi_context_ref (GstCurlMultiContext * thiz);
 void gst_curl_multi_context_unref (GstCurlMultiContext * thiz);
 void gst_curl_multi_context_stop (GstCurlMultiContext * thiz);
-void gst_curl_multi_context_add_source (GstCurlMultiContext * thiz, GstCurlHttpSrc * client);
-void gst_curl_multi_context_remove_source (GstCurlMultiContext * thiz, GstCurlHttpSrc * client);
+void gst_curl_multi_context_add_source (GstCurlMultiContext * thiz, CURL * handle);
+void gst_curl_multi_context_remove_source (GstCurlMultiContext * thiz, CURL * handle);
 
 #endif

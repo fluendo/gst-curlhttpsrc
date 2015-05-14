@@ -65,6 +65,8 @@
 #include <curl/curl.h>
 #include <gst/base/gstpushsrc.h>
 
+#include "gstcurlmulticontext.h"
+
 G_BEGIN_DECLS
 /* #defines don't like whitespacey bits */
 #define GST_TYPE_CURLHTTPSRC \
@@ -107,44 +109,13 @@ G_BEGIN_DECLS
 #endif
 typedef struct _GstCurlHttpSrc GstCurlHttpSrc;
 typedef struct _GstCurlHttpSrcClass GstCurlHttpSrcClass;
-typedef struct _GstCurlHttpSrcMultiTaskContext GstCurlHttpSrcMultiTaskContext;
 typedef struct _GstCurlHttpSrcQueueElement GstCurlHttpSrcQueueElement;
-
-struct _GstCurlHttpSrcMultiTaskContext
-{
-  GstTask     *task;
-#if GST_CHECK_VERSION(1,0,0)
-  GRecMutex   task_rec_mutex;
-#else
-  GStaticRecMutex task_rec_mutex;
-#endif
-  GMutex      mutex;
-  guint       refcount;
-  GCond       signal;
-
-  GstCurlHttpSrc  *request_removal_element;
-
-  GstCurlHttpSrcQueueElement  *queue;
-
-  enum
-  {
-    GSTCURL_MULTI_LOOP_STATE_WAIT = 0,
-    GSTCURL_MULTI_LOOP_STATE_QUEUE_EVENT,
-    GSTCURL_MULTI_LOOP_STATE_RUNNING,
-    GSTCURL_MULTI_LOOP_STATE_REQUEST_REMOVAL,
-    GSTCURL_MULTI_LOOP_STATE_STOP,
-    GSTCURL_MULTI_LOOP_STATE_MAX
-  } state;
-
-  /* < private > */
-  CURLM *multi_handle;
-};
 
 struct _GstCurlHttpSrcClass
 {
   GstPushSrcClass parent_class;
 
-  GstCurlHttpSrcMultiTaskContext multi_task_context;
+  GstCurlMultiContext multi_task_context;
 };
 
 /*
