@@ -62,9 +62,8 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <curl/curl.h>
 #include <gst/base/gstpushsrc.h>
-
-#include "curltask.h"
 
 G_BEGIN_DECLS
 /* #defines don't like whitespacey bits */

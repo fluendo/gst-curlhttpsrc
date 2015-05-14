@@ -82,11 +82,63 @@
 #endif
 
 #include "gstcurlhttpsrc.h"
+#include "gstcurldefaults.h"
 #include "gstcurlqueue.h"
 
 GST_DEBUG_CATEGORY_STATIC (gst_curl_http_src_debug);
 #define GST_CAT_DEFAULT gst_curl_http_src_debug
 GST_DEBUG_CATEGORY_STATIC (gst_curl_loop_debug);
+
+#define GSTCURL_ERROR_PRINT(...) GST_CAT_ERROR (gst_curl_loop_debug, __VA_ARGS__)
+#define GSTCURL_WARNING_PRINT(...) GST_CAT_WARNING (gst_curl_loop_debug, __VA_ARGS__)
+#define GSTCURL_INFO_PRINT(...) GST_CAT_INFO (gst_curl_loop_debug, __VA_ARGS__)
+#define GSTCURL_DEBUG_PRINT(...) GST_CAT_DEBUG (gst_curl_loop_debug, __VA_ARGS__)
+#define GSTCURL_TRACE_PRINT(...) GST_CAT_TRACE (gst_curl_loop_debug, __VA_ARGS__)
+
+#define gst_curl_setopt_str(s,handle,type,option) \
+  if(option != NULL) { \
+    if(curl_easy_setopt(handle,type,option) != CURLE_OK) { \
+      GST_WARNING_OBJECT (s, "Cannot set unsupported option %s", #type ); \
+    } \
+  } \
+
+#define gst_curl_setopt_int(s,handle, type, option) \
+  if((option >= GSTCURL_HANDLE_MIN_##type) && (option <= GSTCURL_HANDLE_MAX_##type)) { \
+    if(curl_easy_setopt(handle,type,option) != CURLE_OK) { \
+      GST_WARNING_OBJECT (s, "Cannot set unsupported option %s", #type ); \
+    } \
+  } \
+
+#define gst_curl_setopt_str_default(s,handle,type,option) \
+  if((option == NULL) && (GSTCURL_HANDLE_DEFAULT_##type != NULL)) { \
+    if(curl_easy_setopt(handle,type,GSTCURL_HANDLE_DEFAULT_##type) != CURLE_OK) { \
+      GST_WARNING_OBJECT(s, "Cannot set unsupported option %s,", #type ); \
+    } \
+  } \
+  else { \
+    if(curl_easy_setopt(handle,type,option) != CURLE_OK) { \
+      GST_WARNING_OBJECT (s, "Cannot set unsupported option %s", #type ); \
+    } \
+  } \
+
+#define gst_curl_setopt_int_default(s,handle,type,option) \
+  if((option < GSTCURL_HANDLE_MIN_##type) || (option > GSTCURL_HANDLE_MAX_##type)) { \
+    GST_WARNING_OBJECT(s, "Value of %ld out of acceptable range for %s", option, \
+                       #type ); \
+    if(curl_easy_setopt(handle,type,GSTCURL_HANDLE_DEFAULT_##type) != CURLE_OK) { \
+      GST_WARNING_OBJECT(s, "Cannot set unsupported option %s,", #type ); \
+    } \
+  } \
+  else { \
+    if(curl_easy_setopt(handle,type,option) != CURLE_OK) { \
+      GST_WARNING_OBJECT (s, "Cannot set unsupported option %s", #type ); \
+    } \
+  } \
+
+
+/* As gboolean is either 0x0 or 0xffffffff, this sanitises things for curl. */
+#define GSTCURL_BINARYBOOL(x) ((x != 0)?1:0)
+
 
 /*
  * Make a source pad template to be able to kick out recv'd data
@@ -874,6 +926,13 @@ gst_curl_http_src_create (GstPushSrc * psrc, GstBuffer ** outbuf)
     src->end_of_message = FALSE;
     return GST_FLOW_EOS;
   }
+
+  /* Create the easy handle */
+  /* Create the main loop for this new handle */
+  /* start it */
+  /* lock the main loop */
+  /* check that we have or either an error or data */
+  /* Process the easy handle */
 
   src->retries_remaining = src->total_retries;
 
