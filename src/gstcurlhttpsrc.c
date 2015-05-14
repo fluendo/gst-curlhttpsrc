@@ -1401,7 +1401,7 @@ gst_curl_http_src_get_chunks (void *chunk, size_t size, size_t nmemb,
   g_mutex_lock (&s->context.mutex);
 
   if (s->context.cancel) {
-    GST_DEBUG_OBJECT (s, "Stopping the downloading");
+    GST_DEBUG_OBJECT (s, "Cancelling the download");
     g_mutex_unlock (&s->context.mutex);
     return 0;
   }
@@ -1420,7 +1420,6 @@ gst_curl_http_src_get_chunks (void *chunk, size_t size, size_t nmemb,
   gst_buffer_unmap (buf, &info);
 #endif
 
-  GST_DEBUG_OBJECT (s, "Data received");
   gst_adapter_push (s->context.adapter, buf);
   g_cond_signal (&s->context.signal);
   g_mutex_unlock (&s->context.mutex);
