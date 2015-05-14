@@ -173,7 +173,6 @@ static gboolean gst_curl_http_src_get_content_length (GstBaseSrc * bsrc,
     guint64 * size);
 
 static CURL *gst_curl_http_src_create_easy_handle (GstCurlHttpSrc * s);
-static gboolean gst_curl_http_src_make_request (GstCurlHttpSrc * s);
 static inline void gst_curl_http_src_destroy_easy_handle (GstCurlHttpSrc * src);
 static size_t gst_curl_http_src_get_header (void *header, size_t size,
     size_t nmemb, void * src);
@@ -861,29 +860,8 @@ gst_curl_http_src_create (GstPushSrc * psrc, GstBuffer ** outbuf)
 
   g_mutex_unlock (&src->context.mutex);
 
-#if 0
-    ret = gst_curl_http_src_handle_response (src, outbuf);
-
-    gst_curl_http_src_destroy_easy_handle (src);
-
-    if (ret == GST_FLOW_OK) {
-      gst_curl_http_src_negotiate_caps (src);
-      break;
-    }
-    else if (ret == GST_FLOW_ERROR) {
-      break;
-    }
-  }
-
-  /* Reset the return types as our instance will be reused with a new URI */
-  g_free (src->msg);
-  src->msg = NULL;
-  g_free (src->headers.content_type);
-  src->headers.content_type = NULL;
-  src->len = 0;
-
-#endif
   GSTCURL_FUNCTION_EXIT (src);
+
   return GST_FLOW_OK;
 }
 
@@ -983,63 +961,6 @@ gst_curl_http_src_create_easy_handle (GstCurlHttpSrc * s)
 
   GSTCURL_FUNCTION_EXIT (s);
   return handle;
-}
-
-/*
- * Add the GstCurlHttpSrc item to the queue and then wait until the curl thread
- * signals us to say that our request has completed.
- */
-static gboolean
-gst_curl_http_src_make_request (GstCurlHttpSrc * s)
-{
-  GstCurlHttpSrcClass *klass;
-  gboolean ret = FALSE;
-
-  klass = G_TYPE_INSTANCE_GET_CLASS (s, GST_TYPE_CURL_HTTP_SRC,
-                                     GstCurlHttpSrcClass);
-
-  GST_DEBUG_OBJECT (s, "Submitting request for URI %s to curl", s->uri);
-
-  gst_curl_multi_context_add_source (&klass->multi_task_context, s->curl_handle);
-
-  /* Signal the worker thread */
-#if 0
-  g_cond_signal (&klass->multi_task_context.signal);
-  g_cond_wait (s->finished, &klass->multi_task_context.mutex);
-  g_mutex_unlock (&klass->multi_task_context.mutex);
-
-  switch (s->result) {
-    case GSTCURL_RETURN_NONE:
-      GST_WARNING_OBJECT (s, "Nothing ever happened to our request for URI %s!",
-          s->uri);
-      break;
-    case GSTCURL_RETURN_DONE:
-      GST_DEBUG_OBJECT (s, "cURL call finished and returned for URI %s",
-          s->uri);
-      s->end_of_message = TRUE;
-      ret = TRUE;
-      break;
-    case GSTCURL_RETURN_BAD_QUEUE_REQUEST:
-      GST_WARNING_OBJECT (s, "cURL call for URI %s returned as a bad queue",
-          s->uri);
-      break;
-    case GSTCURL_RETURN_TOTAL_ERROR:
-      GST_ERROR_OBJECT (s, "cURL call for URI %s returned as a total failure",
-          s->uri);
-      break;
-    case GSTCURL_RETURN_PIPELINE_NULL:
-      GST_INFO_OBJECT (s,
-          "Pipeline is cleaning up before request for URI %s could complete",
-          s->uri);
-      break;
-    default:
-      /* Why are we here? */
-      GST_WARNING_OBJECT (s, "Illegal curl worker thread result!");
-  }
-#endif
-
-  GSTCURL_FUNCTION_EXIT (s);
-  return ret;
 }
 
 /*
