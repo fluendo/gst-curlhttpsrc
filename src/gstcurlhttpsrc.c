@@ -852,6 +852,7 @@ gst_curl_http_src_create (GstPushSrc * psrc, GstBuffer ** outbuf)
 
   if (src->context.error) {
     g_mutex_unlock (&src->context.mutex);
+    src->context.error = FALSE;
     return GST_FLOW_ERROR;
   }
 
