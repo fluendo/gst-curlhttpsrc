@@ -255,16 +255,3 @@ gst_curl_multi_context_add_source (GstCurlMultiContext * thiz, CURL * handle)
   g_cond_signal (&thiz->signal);
   g_mutex_unlock (&thiz->mutex);
 }
-
-
-void
-gst_curl_multi_context_source_cancel (GstCurlMultiContextSource * source)
-{
-  gchar * url;
-
-  g_mutex_lock (&source->mutex);
-  curl_easy_getinfo (source->easy_handle, CURLINFO_EFFECTIVE_URL, &url);
-  GST_DEBUG ("Cancelling handle for URI %s", url);
-  source->cancel = TRUE;
-  g_mutex_unlock (&source->mutex);
-}

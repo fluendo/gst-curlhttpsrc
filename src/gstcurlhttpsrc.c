@@ -171,7 +171,6 @@ static gboolean gst_curl_http_src_get_content_length (GstBaseSrc * bsrc,
     guint64 * size);
 
 static CURL *gst_curl_http_src_create_easy_handle (GstCurlHttpSrc * s);
-static inline void gst_curl_http_src_destroy_easy_handle (GstCurlHttpSrc * src);
 static size_t gst_curl_http_src_get_header (void *header, size_t size,
     size_t nmemb, void * src);
 static size_t gst_curl_http_src_get_chunks (void *chunk, size_t size,
@@ -180,6 +179,22 @@ static char *gst_curl_http_src_strcasestr (const char *haystack,
     const char *needle);
 
 #define gst_curl_http_src_parent_class parent_class
+
+/* must be called with the context lock */
+static void
+gst_curl_http_src_reset (GstCurlHttpSrc * src)
+{
+  /* reset our status */
+  src->read_position = 0;
+  src->start_position = 0;
+  src->stop_position = -1;
+
+  /* reset the context */
+  /* reset the adapter */
+  if (src->context.adapter)
+    gst_adapter_clear (src->context.adapter);
+  /* remove the handle */
+}
 
 /*----------------------------------------------------------------------------*
  *                            The URI interface                               *
@@ -320,6 +335,59 @@ G_DEFINE_TYPE_WITH_CODE (GstCurlHttpSrc, gst_curl_http_src, GST_TYPE_PUSH_SRC,
 
 #endif
 
+static gboolean gst_curl_http_src_is_seekable (GstBaseSrc * bsrc)
+{
+  GstCurlHttpSrc *src;
+
+  src = GST_CURLHTTPSRC (bsrc);
+  if (src->content_length > 0) {
+    return TRUE;
+  } else {
+    return FALSE;
+  }
+}
+
+static gboolean gst_curl_http_src_do_seek (GstBaseSrc * bsrc,
+    GstSegment * segment)
+{
+  GstCurlHttpSrc *src;
+
+  src = GST_CURLHTTPSRC (bsrc);
+
+  GST_DEBUG_OBJECT (src, "do_seek(%" G_GUINT64_FORMAT ")", segment->start);
+
+  g_mutex_lock (&src->context.mutex);
+  if (src->read_position == segment->start &&
+      src->start_position == segment->start) {
+    GST_DEBUG_OBJECT (src, "Seek to current position and no seek pending");
+    g_mutex_unlock (&src->context.mutex);
+    return TRUE;
+  }
+
+  if (src->content_length <= 0) {
+    GST_WARNING_OBJECT (src, "Not seekable");
+    g_mutex_unlock (&src->context.mutex);
+    return FALSE;
+  }
+
+  if (segment->rate < 0.0 || segment->format != GST_FORMAT_BYTES) {
+    GST_WARNING_OBJECT (src, "Invalid seek segment");
+    g_mutex_unlock (&src->context.mutex);
+    return FALSE;
+  }
+
+  if (segment->start >= src->content_length) {
+    GST_WARNING_OBJECT (src, "Seeking behind end of file, will go to EOS soon");
+  }
+
+  src->start_position = segment->start;
+  src->stop_position = segment->stop;
+  src->context.cancel = TRUE;
+  g_mutex_unlock (&src->context.mutex);
+
+  return TRUE;
+}
+
 static void
 gst_curl_http_src_class_init (GstCurlHttpSrcClass * klass)
 {
@@ -342,6 +410,10 @@ gst_curl_http_src_class_init (GstCurlHttpSrcClass * klass)
   gstbasesrc_class->query = GST_DEBUG_FUNCPTR (gst_curl_http_src_query);
   gstbasesrc_class->get_size =
       GST_DEBUG_FUNCPTR (gst_curl_http_src_get_content_length);
+  gstbasesrc_class->is_seekable =
+      GST_DEBUG_FUNCPTR (gst_curl_http_src_is_seekable);
+  gstbasesrc_class->do_seek =
+      GST_DEBUG_FUNCPTR (gst_curl_http_src_do_seek);
 
   gst_element_class_add_pad_template (gstelement_class,
       gst_static_pad_template_get (&srcpadtemplate));
@@ -798,6 +870,8 @@ gst_curl_http_src_init (GstCurlHttpSrc * source)
   g_cond_init (&source->context.signal);
   source->context.adapter = gst_adapter_new ();
 
+  gst_curl_http_src_reset (source);
+
   GSTCURL_FUNCTION_EXIT (source);
 }
 
@@ -828,6 +902,7 @@ gst_curl_http_src_create (GstPushSrc * psrc, GstBuffer ** outbuf)
   /* do every check locked */
   g_mutex_lock (&src->context.mutex);
 
+start:
   /* create the handle if we dont have one already */
   if (!src->context.easy_handle) {
     src->context.easy_handle = gst_curl_http_src_create_easy_handle (src);
@@ -845,17 +920,43 @@ gst_curl_http_src_create (GstPushSrc * psrc, GstBuffer ** outbuf)
     if (src->context.cancel) {
       GST_DEBUG_OBJECT (src, "Task cancelled for URI %s.", src->uri);
       src->context.cancel = FALSE;
+      src->context.done = FALSE;
+
+      curl_easy_cleanup (src->context.easy_handle);
+      src->context.easy_handle = NULL;
+
+      if (src->read_position != src->start_position) {
+        GST_DEBUG_OBJECT (src, "Performing seek for URI %s.", src->uri);
+        src->read_position = src->start_position;
+        gst_adapter_clear (src->context.adapter);
+        goto start;
+      }
       ret = GST_FLOW_UNEXPECTED;
       goto done;
     }
 
     if (src->context.status == GST_CURL_MULTI_CONTEXT_SOURCE_STATUS_ERROR) {
       GST_DEBUG_OBJECT (src, "Error received for URI %s.", src->uri);
+      src->context.done = FALSE;
+
+      curl_easy_cleanup (src->context.easy_handle);
+      src->context.easy_handle = NULL;
+
       ret = GST_FLOW_ERROR;
     } else if (src->context.status == GST_CURL_MULTI_CONTEXT_SOURCE_STATUS_OK) {
-      GST_DEBUG_OBJECT (src, "Full body received, signalling EOS for URI %s.",
-          src->uri);
-      ret = GST_FLOW_EOS;
+      /* It is possible that the handle is done and we have data */
+      if (gst_adapter_available_fast (src->context.adapter)) {
+        *outbuf = gst_adapter_take_buffer (src->context.adapter,
+          gst_adapter_available (src->context.adapter));
+      } else {
+        GST_DEBUG_OBJECT (src, "Full body received, signalling EOS for URI %s.",
+            src->uri);
+        src->context.done = FALSE;
+
+        curl_easy_cleanup (src->context.easy_handle);
+        src->context.easy_handle = NULL;
+        ret = GST_FLOW_EOS;
+      }
     }
   } else {
     *outbuf = gst_adapter_take_buffer (src->context.adapter,
@@ -903,11 +1004,35 @@ gst_curl_http_src_create_easy_handle (GstCurlHttpSrc * s)
     gst_curl_setopt_str (s, handle, CURLOPT_COOKIELIST, s->cookies[i]);
   }
 
+  if (s->slist) {
+    curl_slist_free_all (s->slist);
+    s->slist = NULL;
+  }
+
   /* curl_slist_append dynamically allocates memory, but I need to free it */
   for (i = 0; i < s->number_headers; i++) {
     s->slist = curl_slist_append(s->slist, s->extra_headers[i]);
   }
-  if(s->slist != NULL) {
+
+  if (s->start_position != 0 || s->stop_position != -1) {
+    gchar *range;
+
+    /* TODO remove old Range header  */
+    if (s->stop_position != -1) {
+      range = g_strdup_printf ("Range: bytes=%" G_GUINT64_FORMAT "-%" G_GUINT64_FORMAT,
+          s->start_position, s->stop_position);
+    } else {
+      range = g_strdup_printf ("Range: bytes=%" G_GUINT64_FORMAT "-",
+          s->start_position);
+    }
+
+    GST_DEBUG_OBJECT (s, "Adding header: '%s'", range);
+
+    s->slist = curl_slist_append (s->slist, range);
+    g_free (range);
+  }
+
+  if (s->slist != NULL) {
       curl_easy_setopt(handle, CURLOPT_HTTPHEADER, s->slist);
   }
 
@@ -1100,19 +1225,6 @@ gst_curl_http_src_negotiate_caps (GstCurlHttpSrc * src)
   return TRUE;
 }
 
-/*
- * Cleanup the CURL easy handle once we're done with it.
- */
-static inline void
-gst_curl_http_src_destroy_easy_handle (GstCurlHttpSrc * src)
-{
-  /* Thank you Handles, and well done. Well done, mate. */
-  if(src->curl_handle != NULL) {
-    curl_easy_cleanup (src->curl_handle);
-    src->curl_handle = NULL;
-  }
-}
-
 static GstStateChangeReturn
 gst_curl_http_src_change_state (GstElement * element, GstStateChange transition)
 {
@@ -1134,7 +1246,11 @@ gst_curl_http_src_change_state (GstElement * element, GstStateChange transition)
       gst_curl_multi_context_unref (&klass->multi_task_context);
       break;
     case GST_STATE_CHANGE_PAUSED_TO_READY:
-      gst_curl_multi_context_source_cancel (&source->context);
+      g_mutex_lock (&source->context.mutex);
+      source->context.cancel = TRUE;
+      /* reset the element */
+      gst_curl_http_src_reset (source);
+      g_mutex_unlock (&source->context.mutex);
       break;
     default:
       break;
@@ -1185,8 +1301,6 @@ gst_curl_http_src_cleanup_instance(GstCurlHttpSrc *src)
   g_free(src->finished);
   src->finished = NULL;
 
-  gst_curl_http_src_destroy_easy_handle(src);
-
   g_free(src->msg);
   src->msg = NULL;
   g_free(src->headers.content_type);
@@ -1196,6 +1310,12 @@ gst_curl_http_src_cleanup_instance(GstCurlHttpSrc *src)
   if (src->context.adapter) {
     g_object_unref (src->context.adapter);
     src->context.adapter = NULL;
+  }
+
+  /* Thank you Handles, and well done. Well done, mate. */
+  if (src->context.easy_handle != NULL) {
+    curl_easy_cleanup (src->context.easy_handle);
+    src->context.easy_handle = NULL;
   }
 }
 
@@ -1296,7 +1416,9 @@ gst_curl_http_src_get_header (void *header, size_t size, size_t nmemb,
     len = (size * nmemb) - 16;
     clen = g_ascii_strtoull (substr, NULL, 10);
 
-    GST_INFO_OBJECT(src, "Content-Length was given as %" G_GUINT64_FORMAT, clen);
+    GST_INFO_OBJECT(src, "Content-Length was given as %" G_GUINT64_FORMAT
+        " real size %" G_GUINT64_FORMAT, clen, clen + s->start_position);
+    clen += s->start_position;
     basesrc = GST_BASE_SRC_CAST (s);
     basesrc->segment.duration = clen;
     s->content_length = clen;
@@ -1309,8 +1431,6 @@ gst_curl_http_src_get_header (void *header, size_t size, size_t nmemb,
             GST_FORMAT_BYTES, GST_CLOCK_TIME_NONE));
 #endif
   }
-
-  /* TODO check if we can seek */
 
   return size * nmemb;
 }
@@ -1377,6 +1497,11 @@ gst_curl_http_src_get_chunks (void *chunk, size_t size, size_t nmemb,
     g_mutex_unlock (&s->context.mutex);
     return 0;
   }
+
+  /* increment the positions */
+  if (G_LIKELY (s->start_position == s->read_position))
+    s->start_position += len;
+  s->read_position += len;
 
   /* pick up the data */
 #if GST_CHECK_VERSION(1,0,0)

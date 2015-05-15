@@ -56,6 +56,4 @@ void gst_curl_multi_context_unref (GstCurlMultiContext * thiz);
 void gst_curl_multi_context_stop (GstCurlMultiContext * thiz);
 void gst_curl_multi_context_add_source (GstCurlMultiContext * thiz, CURL * handle);
 
-void gst_curl_multi_context_source_cancel (GstCurlMultiContextSource * source);
-
 #endif

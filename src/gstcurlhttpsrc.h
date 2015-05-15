@@ -199,6 +199,9 @@ struct _GstCurlHttpSrc
   gchar *msg;
   guint len;
   guint64 content_length;
+  guint64 read_position;
+  guint64 start_position;
+  guint64 stop_position;
   struct
   {
     gchar *content_type;
