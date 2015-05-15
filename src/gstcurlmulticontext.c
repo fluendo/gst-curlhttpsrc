@@ -8,13 +8,48 @@ GST_DEBUG_CATEGORY_EXTERN (gst_curl_multi_context_debug);
 #define GST_CAT_DEFAULT gst_curl_multi_context_debug
 
 static void
+gst_curl_multi_context_terminate_source (GstCurlMultiContextSource * source)
+{
+  g_mutex_lock (&source->mutex);
+  /* TODO set the error, etc */
+  g_cond_signal (&source->signal);
+  g_mutex_unlock (&source->mutex);
+}
+
+static void
+gst_curl_multi_context_process_msgs (GstCurlMultiContext * thiz)
+{
+  CURLMsg *curl_message;
+  int nmsgs;
+
+  /*
+   * Check the CURL message buffer to find out if any transfers have
+   * completed. If they have, call the signal_finished function which
+   * will signal the g_cond_wait call in that calling instance.
+   */
+  while ((curl_message = curl_multi_info_read (thiz->multi_handle, &nmsgs))) {
+    CURL *easy_handle = curl_message->easy_handle;
+    GstCurlMultiContextSource *source;
+
+    if (curl_message->msg != CURLMSG_DONE || !easy_handle)
+      continue;
+
+    curl_easy_getinfo (easy_handle, CURLINFO_PRIVATE, (char **) &source);
+    if (!source)
+      continue;
+
+    GST_ERROR ("Removing source");
+    thiz->sources--;
+    curl_multi_remove_handle (thiz->multi_handle, easy_handle);
+    gst_curl_multi_context_terminate_source (source);
+  }
+}
+
+static void
 gst_curl_multi_context_loop (gpointer thread_data)
 {
   GstCurlMultiContext* thiz;
-  CURLMsg *curl_message;
-  gboolean cond = FALSE;
   gint rc;
-  int i;
   struct timeval timeout;
   int maxfd = -1;
   long curl_timeo = -1;
@@ -26,10 +61,17 @@ gst_curl_multi_context_loop (gpointer thread_data)
   /* Someone is holding a reference to us, but isn't using us so to avoid
    * unnecessary clock cycle wasting, sit in a conditional wait until woken.
    */
-  while (thiz->sources == 0) {
+  while (thiz->sources == 0 && thiz->refcount > 0) {
     GST_DEBUG ("Entering wait state...");
     g_cond_wait (&thiz->signal, &thiz->mutex);
     GST_DEBUG ("Received wake up call!");
+  }
+
+  /* check the exit condition */
+  if (thiz->refcount <= 0) {
+    GST_DEBUG ("Exiting");
+    g_mutex_unlock (&thiz->mutex);
+    return;
   }
 
   FD_ZERO (&fdread);
@@ -72,31 +114,8 @@ gst_curl_multi_context_loop (gpointer thread_data)
     break;
   }
 
-  /*
-   * Check the CURL message buffer to find out if any transfers have
-   * completed. If they have, call the signal_finished function which
-   * will signal the g_cond_wait call in that calling instance.
-   */
-  i = 0;
-  /* TODO redo this */
-  while (cond != TRUE) {
-    curl_message = curl_multi_info_read (thiz->multi_handle, &i);
-    if (curl_message == NULL) {
-      cond = TRUE;
-    } else if (curl_message->msg == CURLMSG_DONE) {
-      /* A hack, but I have seen curl_message->easy_handle being
-       * NULL randomly, so check for that. */
-      if (curl_message->easy_handle == NULL) {
-        break;
-    }
-#if 0
-      curl_multi_remove_handle (thiz->multi_handle,
-                                curl_message->easy_handle);
-      gst_curl_http_src_remove_queue_handle(&thiz->queue,
-                                          curl_message->easy_handle);
-#endif
-    }
-  }
+  gst_curl_multi_context_process_msgs (thiz);
+
   g_mutex_unlock(&thiz->mutex);
 }
 
