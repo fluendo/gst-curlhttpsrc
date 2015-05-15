@@ -97,8 +97,6 @@ G_BEGIN_DECLS
 #define GSTCURL_INFO_RESPONSE(x) ((x >= 100) && (x <= 199))
 #define GSTCURL_SUCCESS_RESPONSE(x) ((x >= 200) && (x <=299))
 #define GSTCURL_REDIRECT_RESPONSE(x) ((x >= 300) && (x <= 399))
-#define GSTCURL_CLIENT_ERR_RESPONSE(x) ((x >= 400) && (x <= 499))
-#define GSTCURL_SERVER_ERR_RESPONSE(x) ((x >= 500) && (x <= 599))
 #define GSTCURL_FUNCTIONTRACE 0
 #if GSTCURL_FUNCTIONTRACE
 #define GSTCURL_FUNCTION_ENTRY(x) GST_DEBUG_OBJECT(x, "Entering function");

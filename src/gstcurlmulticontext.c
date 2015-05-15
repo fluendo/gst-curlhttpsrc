@@ -7,11 +7,53 @@
 GST_DEBUG_CATEGORY_EXTERN (gst_curl_multi_context_debug);
 #define GST_CAT_DEFAULT gst_curl_multi_context_debug
 
+#define GSTCURL_CLIENT_ERR_RESPONSE(x) ((x >= 400) && (x <= 499))
+#define GSTCURL_SERVER_ERR_RESPONSE(x) ((x >= 500) && (x <= 599))
+
 static void
-gst_curl_multi_context_terminate_source (GstCurlMultiContextSource * source)
+gst_curl_multi_context_source_terminate (GstCurlMultiContextSource * source)
 {
+  glong curl_info_long;
+  gdouble curl_info_dbl;
+  gchar *url;
+
   g_mutex_lock (&source->mutex);
-  /* TODO set the error, etc */
+  curl_easy_getinfo (source->easy_handle, CURLINFO_EFFECTIVE_URL, &url);
+  source->done = TRUE;
+
+  /* Get back the return code for the session */
+  if (curl_easy_getinfo (source->easy_handle, CURLINFO_RESPONSE_CODE,
+          &curl_info_long) != CURLE_OK) {
+    /* Curl cannot be relied on in this state, so return an error. */
+    source->status = GST_CURL_MULTI_CONTEXT_SOURCE_STATUS_ERROR;
+  } else if (GSTCURL_CLIENT_ERR_RESPONSE (curl_info_long)) {
+    GST_ERROR ("Get for URI %s received client error code %ld",
+        url, curl_info_long);
+    source->status = GST_CURL_MULTI_CONTEXT_SOURCE_STATUS_ERROR;
+  } else if (GSTCURL_SERVER_ERR_RESPONSE (curl_info_long)) {
+    GST_ERROR ("Get for URI %s received server error code %ld",
+        url, curl_info_long);
+    source->status = GST_CURL_MULTI_CONTEXT_SOURCE_STATUS_ERROR;
+  } else {
+    /*
+     * If we got here, odds are that no actual conversation between client and
+     * server took place. Check for timeouts so we can try again if retries are
+     * > 0. Alternatively, this could be for an SSL-related error,
+     */
+    if (curl_easy_getinfo (source->easy_handle, CURLINFO_TOTAL_TIME,
+                           &curl_info_dbl) != CURLE_OK) {
+      /* Curl cannot be relied on in this state, so return an error. */
+      source->status = GST_CURL_MULTI_CONTEXT_SOURCE_STATUS_ERROR;
+    }
+
+    if (curl_easy_getinfo (source->easy_handle, CURLINFO_OS_ERRNO,
+                           &curl_info_long) != CURLE_OK) {
+      /* Curl cannot be relied on in this state, so return an error. */
+      source->status = GST_CURL_MULTI_CONTEXT_SOURCE_STATUS_ERROR;
+    }
+
+    source->status = GST_CURL_MULTI_CONTEXT_SOURCE_STATUS_OK;
+  }
   g_cond_signal (&source->signal);
   g_mutex_unlock (&source->mutex);
 }
@@ -38,10 +80,9 @@ gst_curl_multi_context_process_msgs (GstCurlMultiContext * thiz)
     if (!source)
       continue;
 
-    GST_ERROR ("Removing source");
     thiz->sources--;
     curl_multi_remove_handle (thiz->multi_handle, easy_handle);
-    gst_curl_multi_context_terminate_source (source);
+    gst_curl_multi_context_source_terminate (source);
   }
 }
 
@@ -217,9 +258,13 @@ gst_curl_multi_context_add_source (GstCurlMultiContext * thiz, CURL * handle)
 
 
 void
-gst_curl_multi_context_remove_source (GstCurlMultiContext * thiz, CURL * handle)
+gst_curl_multi_context_source_cancel (GstCurlMultiContextSource * source)
 {
-  g_mutex_lock (&thiz->mutex);
-  curl_multi_remove_handle (thiz->multi_handle, handle);
-  g_mutex_unlock (&thiz->mutex);
+  gchar * url;
+
+  g_mutex_lock (&source->mutex);
+  curl_easy_getinfo (source->easy_handle, CURLINFO_EFFECTIVE_URL, &url);
+  GST_DEBUG ("Cancelling handle for URI %s", url);
+  source->cancel = TRUE;
+  g_mutex_unlock (&source->mutex);
 }

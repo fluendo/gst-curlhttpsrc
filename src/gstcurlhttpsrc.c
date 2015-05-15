@@ -162,8 +162,6 @@ static void gst_curl_http_src_init (GstCurlHttpSrc * source);
 static void gst_curl_http_src_finalize (GObject *obj);
 static GstFlowReturn gst_curl_http_src_create (GstPushSrc * psrc,
     GstBuffer ** outbuf);
-static GstFlowReturn
-gst_curl_http_src_handle_response (GstCurlHttpSrc * src, GstBuffer ** buf);
 static gboolean gst_curl_http_src_negotiate_caps (GstCurlHttpSrc * src);
 static GstStateChangeReturn gst_curl_http_src_change_state (GstElement *
     element, GstStateChange transition);
@@ -821,6 +819,7 @@ gst_curl_http_src_create (GstPushSrc * psrc, GstBuffer ** outbuf)
 {
   GstCurlHttpSrc *src = GST_CURLHTTPSRC (psrc);
   GstCurlHttpSrcClass *klass;
+  GstFlowReturn ret = GST_FLOW_OK;
 
   klass = G_TYPE_INSTANCE_GET_CLASS (src, GST_TYPE_CURL_HTTP_SRC,
                                      GstCurlHttpSrcClass);
@@ -829,40 +828,46 @@ gst_curl_http_src_create (GstPushSrc * psrc, GstBuffer ** outbuf)
   /* do every check locked */
   g_mutex_lock (&src->context.mutex);
 
-  /* have we finished already? */
-  if (src->end_of_message == TRUE) {
-    GST_DEBUG_OBJECT (src, "Full body received, signalling EOS for URI %s.",
-        src->uri);
-    src->end_of_message = FALSE;
-    g_mutex_unlock (&src->context.mutex);
-    return GST_FLOW_EOS;
-  }
-
   /* create the handle if we dont have one already */
   if (!src->context.easy_handle) {
     src->context.easy_handle = gst_curl_http_src_create_easy_handle (src);
     gst_curl_multi_context_add_source (&klass->multi_task_context, src->context.easy_handle);
   }
 
-  /* check that we have data */
-  while (!gst_adapter_available_fast (src->context.adapter) && !src->context.error) {
+  /* check that we have data or we have finished */
+  while (!gst_adapter_available_fast (src->context.adapter) && !src->context.done) {
     g_cond_wait (&src->context.signal, &src->context.mutex);
   }
 
-  if (src->context.error) {
-    g_mutex_unlock (&src->context.mutex);
-    src->context.error = FALSE;
-    return GST_FLOW_ERROR;
+  if (src->context.done) {
+
+    /* If the task has been cancelled return unless a seek was performed */
+    if (src->context.cancel) {
+      GST_DEBUG_OBJECT (src, "Task cancelled for URI %s.", src->uri);
+      src->context.cancel = FALSE;
+      ret = GST_FLOW_UNEXPECTED;
+      goto done;
+    }
+
+    if (src->context.status == GST_CURL_MULTI_CONTEXT_SOURCE_STATUS_ERROR) {
+      GST_DEBUG_OBJECT (src, "Error received for URI %s.", src->uri);
+      ret = GST_FLOW_ERROR;
+    } else if (src->context.status == GST_CURL_MULTI_CONTEXT_SOURCE_STATUS_OK) {
+      GST_DEBUG_OBJECT (src, "Full body received, signalling EOS for URI %s.",
+          src->uri);
+      ret = GST_FLOW_EOS;
+    }
+  } else {
+    *outbuf = gst_adapter_take_buffer (src->context.adapter,
+        gst_adapter_available (src->context.adapter));
   }
 
-  *outbuf = gst_adapter_take_buffer (src->context.adapter,
-      gst_adapter_available (src->context.adapter));
-
+done:
   g_mutex_unlock (&src->context.mutex);
 
   GSTCURL_FUNCTION_EXIT (src);
 
-  return GST_FLOW_OK;
+  return ret;
 }
 
 /*
@@ -963,6 +968,7 @@ gst_curl_http_src_create_easy_handle (GstCurlHttpSrc * s)
   return handle;
 }
 
+#if 0
 /*
  * Check return codes
  */
@@ -977,12 +983,6 @@ gst_curl_http_src_handle_response (GstCurlHttpSrc * src, GstBuffer ** buf)
 
   GSTCURL_FUNCTION_ENTRY (src);
 
-  /* Get back the return code for the session */
-  if (curl_easy_getinfo (src->curl_handle, CURLINFO_RESPONSE_CODE,
-          &curl_info_long) != CURLE_OK) {
-    /* Curl cannot be relied on in this state, so return an error. */
-    return GST_FLOW_ERROR;
-  }
 
   if (GSTCURL_INFO_RESPONSE (curl_info_long) ||
       GSTCURL_SUCCESS_RESPONSE (curl_info_long)) {
@@ -1021,42 +1021,11 @@ gst_curl_http_src_handle_response (GstCurlHttpSrc * src, GstBuffer ** buf)
      */
     src->retries_remaining = 0;
   }
-  else if (GSTCURL_CLIENT_ERR_RESPONSE (curl_info_long)) {
-    GST_ERROR_OBJECT (src, "Get for URI %s received client error code %ld",
-        src->uri, curl_info_long);
-    ret = GST_FLOW_ERROR;
-    /* For client error, any retry with the same request is more than likely
-     * going to fail. */
-    src->retries_remaining = 0;
-  }
-  else if (GSTCURL_SERVER_ERR_RESPONSE (curl_info_long)) {
-    GST_ERROR_OBJECT (src, "Get for URI %s received server error code %ld",
-        src->uri, curl_info_long);
-    ret = GST_FLOW_ERROR;
-    /* Server isn't working, so again retries are best avoided. */
-    src->retries_remaining = 0;
-  }
   else {
-    /*
-     * If we got here, odds are that no actual conversation between client and
-     * server took place. Check for timeouts so we can try again if retries are
-     * > 0. Alternatively, this could be for an SSL-related error,
-     */
-    if (curl_easy_getinfo (src->curl_handle, CURLINFO_TOTAL_TIME,
-                           &curl_info_dbl) != CURLE_OK) {
-      /* Curl cannot be relied on in this state, so return an error. */
-      return GST_FLOW_ERROR;
-    }
 
     if (curl_info_dbl > src->timeout_secs) {
       GST_ERROR_OBJECT (src, "Request for URI %s timed out after %d seconds.",
                         src->uri, src->timeout_secs);
-    }
-
-    if (curl_easy_getinfo (src->curl_handle, CURLINFO_OS_ERRNO,
-                           &curl_info_long) != CURLE_OK) {
-      /* Curl cannot be relied on in this state, so return an error. */
-      return GST_FLOW_ERROR;
     }
 
     GST_WARNING_OBJECT (src, "Errno for CONNECT call was %ld (%s)", curl_info_long,
@@ -1100,6 +1069,7 @@ gst_curl_http_src_handle_response (GstCurlHttpSrc * src, GstBuffer ** buf)
   GSTCURL_FUNCTION_EXIT (src);
   return ret;
 }
+#endif
 
 /*
  * "Negotiate" capabilities between us and the sink.
@@ -1161,8 +1131,10 @@ gst_curl_http_src_change_state (GstElement * element, GstStateChange transition)
       break;
     case GST_STATE_CHANGE_READY_TO_NULL:
       /* The pipeline has ended, so signal any running request to end. */
-      gst_curl_multi_context_remove_source (&klass->multi_task_context, source->curl_handle);
       gst_curl_multi_context_unref (&klass->multi_task_context);
+      break;
+    case GST_STATE_CHANGE_PAUSED_TO_READY:
+      gst_curl_multi_context_source_cancel (&source->context);
       break;
     default:
       break;
