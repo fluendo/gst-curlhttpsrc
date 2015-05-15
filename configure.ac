@@ -90,7 +90,7 @@ AC_ARG_WITH([protocols],
 
 AC_DEFINE_UNQUOTED([PROTOCOLS], [$with_protocols], [Protocols to register with curl])
 
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile common/Makefile common/m4/Makefile])
 AC_OUTPUT
 
 echo "
