@@ -83,7 +83,6 @@
 
 #include "gstcurlhttpsrc.h"
 #include "gstcurldefaults.h"
-#include "gstcurlqueue.h"
 
 GST_DEBUG_CATEGORY (gst_curl_multi_context_debug);
 GST_DEBUG_CATEGORY_STATIC (gst_curl_http_src_debug);
@@ -276,7 +275,6 @@ gst_curl_http_src_urihandler_set_uri (GstURIHandler * handler,
     GST_DEBUG_OBJECT (source,
         "URI already present as %s, updating to new URI %s", source->uri, uri);
     g_free (source->uri);
-    source->end_of_message = FALSE;
   }
 
   source->uri = g_strdup (uri);
@@ -842,7 +840,6 @@ gst_curl_http_src_init (GstCurlHttpSrc * source)
   source->number_cookies = 0;
   source->extra_headers = NULL;
   source->number_headers = 0;
-  source->end_of_message = FALSE;
   source->allow_3xx_redirect = GSTCURL_HANDLE_DEFAULT_CURLOPT_FOLLOWLOCATION;
   source->max_3xx_redirects = GSTCURL_HANDLE_DEFAULT_CURLOPT_MAXREDIRS;
   source->keep_alive = GSTCURL_HANDLE_DEFAULT_CURLOPT_TCP_KEEPALIVE;
@@ -1301,8 +1298,6 @@ gst_curl_http_src_cleanup_instance(GstCurlHttpSrc *src)
   g_free(src->finished);
   src->finished = NULL;
 
-  g_free(src->msg);
-  src->msg = NULL;
   g_free(src->headers.content_type);
   src->headers.content_type = NULL;
 

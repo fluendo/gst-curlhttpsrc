@@ -190,18 +190,18 @@ struct _GstCurlHttpSrc
     GSTCURL_RETURN_PIPELINE_NULL,
     GSTCURL_RETURN_MAX
   } result;
-  CURL *curl_handle;
-  gboolean end_of_message;
+
+  /*
+   * Seek information
+   */
+  guint64 start_position;
+  guint64 stop_position;
 
   /*
    * Response message
    */
-  gchar *msg;
-  guint len;
   guint64 content_length;
   guint64 read_position;
-  guint64 start_position;
-  guint64 stop_position;
   struct
   {
     gchar *content_type;

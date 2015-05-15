@@ -6,10 +6,8 @@ gstcurlhttpsrc.c \
 gstcurlhttpsrc.h \
 gstcurlmulticontext.c \
 gstcurlmulticontext.h \
-gstcurlqueue.c \
 curltask.h \
-gstcurldefaults.h \
-gstcurlqueue.h
+gstcurldefaults.h
 
 # compiler and linker flags used to compile this plugin, set in configure.ac
 libgstcurlhttpsrc_la_CFLAGS = -I${top_srcdir}/common $(GST_CFLAGS) $(GST_BASE_CFLAGS)
