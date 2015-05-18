@@ -823,7 +823,7 @@ start:
         gst_adapter_clear (src->context.adapter);
         goto start;
       }
-      ret = GST_FLOW_UNEXPECTED;
+      ret = GST_FLOW_EOS;
       goto done;
     }
 
