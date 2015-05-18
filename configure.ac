@@ -90,6 +90,20 @@ AC_ARG_WITH([protocols],
 
 AC_DEFINE_UNQUOTED([PROTOCOLS], [$with_protocols], [Protocols to register with curl])
 
+dnl Option to tell the plugin type/name
+AC_ARG_WITH([type],
+            [AS_HELP_STRING([--with-type],
+              [Set the type name @<:@default=CurlHttpSrc@:>@])],
+            [],
+            [with_type="CurlHttpSrc"])
+
+type_name="Gst${with_type}" 
+AC_DEFINE_UNQUOTED([TYPE_NAME], ["$type_name"], [The GType to use])
+
+plugin_name=`echo ${with_type} | tr '[A-Z]' '[a-z]'`
+AC_DEFINE_UNQUOTED([PLUGIN_NAME], ["$plugin_name"], [The plugin name to use])
+AC_DEFINE_UNQUOTED([PLUGIN_TYPE], [$plugin_name], [The plugin type to use])
+
 AC_CONFIG_FILES([Makefile src/Makefile common/Makefile common/m4/Makefile])
 AC_OUTPUT
 
@@ -100,5 +114,6 @@ $PACKAGE-$VERSION
         compiler:                         ${CC}
         Building for GStreamer-${GST_MAJORMINOR}
 	Protocols to use                  ${with_protocols}
+	Type:                             ${type_name}
+	Plugin:                           ${plugin_name}
 "
-

@@ -1529,7 +1529,7 @@ gst_curl_http_src_get_type (void)
     };
 
     gst_curl_http_src_type = g_type_register_static (GST_TYPE_PUSH_SRC,
-        "GstCurlHttpSrc", &gst_curl_http_src_info, 0);
+        TYPE_NAME, &gst_curl_http_src_info, 0);
 
     /* Add the interface for GStreamer 0.10 */
 #if !GST_CHECK_VERSION (1,0,0)
@@ -1580,7 +1580,7 @@ curlhttpsrc_init (GstPlugin * curlhttpsrc)
       0, "Multi context for libcURL based elements");
 
   /* Set to 500 so we take precedence over soup for dev purposes. */
-  return gst_element_register (curlhttpsrc, "curlhttpsrc", 500,
+  return gst_element_register (curlhttpsrc, PLUGIN_NAME, 500,
       GST_TYPE_CURLHTTPSRC);
 }
 
@@ -1595,8 +1595,8 @@ curlhttpsrc_init (GstPlugin * curlhttpsrc)
 
 FLUENDO_PLUGIN_DEFINE (GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
-    "curlhttpsrc",
-    curlhttpsrc,
+    PLUGIN_NAME,
+    PLUGIN_TYPE,
     "UriHandler for libcURL",
     curlhttpsrc_init,
     VERSION, "LGPL", "BBC Research & Development", "http://www.bbc.co.uk/rd")
